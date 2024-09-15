@@ -1,18 +1,34 @@
 using CasinoRegistro.Data;
+using CasinoRegistro.DataAccess.Data;
+using CasinoRegistro.DataAccess.Data.Repository.IRepository;
+using CasinoRegistro.DataAccess.Data.Repository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("ConexionSQL") ?? throw new InvalidOperationException("String de Conexión 'ConexionSQL' no encontrada.");
+
+
+//Context para Identity
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+// Agrego el contexto para las clases a usar
+builder.Services.AddDbContext<CasinoRegistroDbContext>(options =>
+options.UseSqlServer(connectionString));
+
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+//Agregar contenedor de trabajo al contenedor IoC de inyección de dependencias
+builder.Services.AddScoped<IContenedorTrabajo, ContenedorTrabajo>();
 
 var app = builder.Build();
 

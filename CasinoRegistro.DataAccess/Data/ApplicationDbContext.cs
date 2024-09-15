@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using CasinoRegistro.Models;
 
 namespace CasinoRegistro.Data
 {
@@ -9,5 +10,7 @@ namespace CasinoRegistro.Data
             : base(options)
         {
         }
+
+    
     }
 }
