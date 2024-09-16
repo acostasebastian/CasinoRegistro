@@ -11,7 +11,7 @@ namespace CasinoRegistro.DataAccess.Data.Repository.IRepository
         //Aquí se deben de ir agregando los diferentes repositorios
         IPlataformaRepository Plataforma { get; }
 
-     //   ICajeroRepository Cajero { get; }
+        ICajeroRepository Cajero { get; }
 
         void Save();
     }

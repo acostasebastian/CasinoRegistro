@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace CasinoRegistro.DataAccess.Data.Repository.IRepository
 {
-    public interface IPlataformaRepository : IRepository<Plataforma>
+    public interface ICajeroRepository : IRepository<CajeroUser>
     {
-        void Update(Plataforma plataforma);
+        void Update(CajeroUser cajero);
 
-       // IEnumerable<SelectListItem> GetListaPlataformas();
+      
     }
 }

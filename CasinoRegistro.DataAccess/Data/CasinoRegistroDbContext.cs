@@ -23,5 +23,6 @@ namespace CasinoRegistro.DataAccess.Data
         //    optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Test;ConnectRetryCount=0");
         //}
         public DbSet<Plataforma> Plataforma { get; set; }
+        public DbSet<CajeroUser> Cajero { get; set; }
     }
 }

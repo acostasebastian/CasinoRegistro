@@ -1,0 +1,86 @@
+﻿@model CasinoRegistro.Models.ViewModels.CajeroViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>CajeroUser</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" method="POST" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="CajeroUserVM.Email" class="control-label"></label>
+                <input asp-for="CajeroUserVM.Email" class="form-control" />
+                <span asp-validation-for="CajeroUserVM.Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CajeroUserVM.Nombre" class="control-label"></label>
+                <input asp-for="CajeroUserVM.Nombre" class="form-control" />
+                <span asp-validation-for="CajeroUserVM.Nombre" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CajeroUserVM.Apellido" class="control-label"></label>
+                <input asp-for="CajeroUserVM.Apellido" class="form-control" />
+                <span asp-validation-for="CajeroUserVM.Apellido" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CajeroUserVM.DNI" class="control-label"></label>
+                <input asp-for="CajeroUserVM.DNI" class="form-control" />
+                <span asp-validation-for="CajeroUserVM.DNI" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CajeroUserVM.Telefono" class="control-label"></label>
+                <input asp-for="CajeroUserVM.Telefono" class="form-control" />
+                <span asp-validation-for="CajeroUserVM.Telefono" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CajeroUserVM.FichasCargar" class="control-label"></label>
+                <input asp-for="CajeroUserVM.FichasCargar" class="form-control" />
+                <span asp-validation-for="CajeroUserVM.FichasCargar" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CajeroUserVM.PorcentajeComision" class="control-label"></label>
+                <input asp-for="CajeroUserVM.PorcentajeComision" class="form-control" />
+                <span asp-validation-for="CajeroUserVM.PorcentajeComision" class="text-danger"></span>
+            </div>
+
+            @* DROPDOWN DE LISTA DE PLATAFORMAS.. FALTA AGERGARLO EN LA BASE Y VER QUE SEA DE MULTIPLE ELECCION                 
+
+            *@
+
+         @*    <div class="form-group row">
+                <div class="col-4">
+                    <label for="Plataforma">Plataformas</label>
+                </div>
+                <div class="col-8">
+                    @Html.DropDownListFor(m => m.CajeroUserVM.CategoriaId, Model.ListaPlataformas,
+                             "-Por favor seleccione una Plataforma-", new { @class = "form-control" })
+                    <span asp-validation-for="CajeroUserVM.PlataformaId" class="text-danger"></span>
+                </div>
+            </div> *@
+
+            <div class="form-group">
+                <label asp-for="CajeroUserVM.UrlImagen" class="control-label"></label>
+                <input type="file" name="imagen" id="subidaArchivo" class="form-control" />
+                <span asp-validation-for="CajeroUserVM.UrlImagen" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+           
+        </form>
+        <br />
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

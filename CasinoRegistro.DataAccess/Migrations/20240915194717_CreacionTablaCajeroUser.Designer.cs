@@ -3,6 +3,7 @@ using CasinoRegistro.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CasinoRegistro.DataAccess.Migrations
 {
     [DbContext(typeof(CasinoRegistroDbContext))]
-    partial class CasinoRegistroDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240915194717_CreacionTablaCajeroUser")]
+    partial class CreacionTablaCajeroUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,7 +70,7 @@ namespace CasinoRegistro.DataAccess.Migrations
                     b.HasIndex(new[] { "Email" }, "IX_Cajeros_Email")
                         .IsUnique();
 
-                    b.ToTable("Cajero", (string)null);
+                    b.ToTable("Cajero");
                 });
 
             modelBuilder.Entity("CasinoRegistro.Models.Plataforma", b =>
@@ -90,7 +93,7 @@ namespace CasinoRegistro.DataAccess.Migrations
                     b.HasIndex(new[] { "URL" }, "IX_Plataformas_URL")
                         .IsUnique();
 
-                    b.ToTable("Plataforma", (string)null);
+                    b.ToTable("Plataforma");
                 });
 #pragma warning restore 612, 618
         }

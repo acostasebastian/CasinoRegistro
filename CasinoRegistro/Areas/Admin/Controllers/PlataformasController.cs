@@ -37,24 +37,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
            // return View( _contenedorTrabajo.Plataforma.GetAll());
             return View(await _contenedorTrabajo.Plataforma.GetAll());
         }
-
-        // GET: Admin/Plataformas/Details/5
-        //public async Task<IActionResult> Details(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var plataforma = await _contenedorTrabajo.Plataforma
-        //        .GetFirstOrDefault(m => m.Id == id);
-        //    if (plataforma == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return View(plataforma);
-        //}
+       
 
         // GET: Admin/Plataformas/Create
         public IActionResult Create()

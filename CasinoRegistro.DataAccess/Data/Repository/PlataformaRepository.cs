@@ -1,6 +1,7 @@
 ﻿using CasinoRegistro.Data;
 using CasinoRegistro.DataAccess.Data.Repository.IRepository;
 using CasinoRegistro.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,5 +25,14 @@ namespace CasinoRegistro.DataAccess.Data.Repository
             objDesdeDb.Descripcion = plataforma.Descripcion;
 
         }
+
+        //public IEnumerable<SelectListItem> GetListaPlataformas()
+        //{
+        //    return _db.Plataforma.Select(p => new SelectListItem()
+        //    {
+        //        Text = p.URL,
+        //        Value = p.Id.ToString()
+        //    });
+        //}
     }
 }
