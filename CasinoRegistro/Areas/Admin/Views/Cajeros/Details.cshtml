@@ -1,10 +1,10 @@
-﻿@model CasinoRegistro.Models.CajeroUser
+﻿@* @model CasinoRegistro.Models.CajeroUser
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalles";
 }
 
-<h1>Details</h1>
+<h1>Detalles</h1>
 
 <div>
     <h4>CajeroUser</h4>
@@ -55,8 +55,8 @@
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.UrlImagen)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UrlImagen)
+        <dd class = "col-sm-10">            
+            <img src="@Url.Content(Model.UrlImagen)" alt="Image" style="width:100px;height:100px;max-width: 100%; height: auto;" />
         </dd>
     </dl>
 </div>
@@ -64,3 +64,149 @@
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+ *@
+
+@* --- *@
+
+@model CasinoRegistro.Models.ViewModels.CajeroViewModel
+
+@{
+    ViewData["Title"] = "Detalles Cajero";
+}
+
+<br />
+<br />
+<h3 class="text-center">Detalles Cajero</h3>
+<form asp-action="Edit" method="POST" enctype="multipart/form-data">
+    <!--Se envía el ID del artículo como campo oculto-->
+    <input type="hidden" asp-for="CajeroUserVM.Id" />
+
+    <div class="row px-2 border">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="col-8 mt-4">
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="CajeroUserVM.Email"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="CajeroUserVM.Email" class="form-control" disabled />                   
+                </div>
+            </div>
+
+            <br />
+
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="CajeroUserVM.Nombre"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="CajeroUserVM.Nombre" class="form-control" disabled />                    
+                </div>
+            </div>
+
+            <br />
+
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="CajeroUserVM.Apellido"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="CajeroUserVM.Apellido" class="form-control" disabled />                    
+                </div>
+            </div>
+
+            <br />
+
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="CajeroUserVM.DNI"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="CajeroUserVM.DNI" class="form-control" disabled />                    
+                </div>
+            </div>
+
+            <br />
+
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="CajeroUserVM.Telefono"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="CajeroUserVM.Telefono" class="form-control" disabled />                    
+                </div>
+            </div>
+
+            <br />
+
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="CajeroUserVM.FichasCargar"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="CajeroUserVM.FichasCargar" class="form-control" disabled />                    
+                </div>
+            </div>
+
+            <br />
+
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="CajeroUserVM.PorcentajeComision"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="CajeroUserVM.PorcentajeComision" class="form-control" disabled />                    
+                </div>
+            </div>
+
+            <br />
+
+
+            <br />
+
+            <!--Autorización-->
+            @*   @if (User.IsInRole(CNT.Administrador))
+            { *@
+            <!--Selector de Roles-->
+            <div class="form-group row">
+                <div class="col-6"><h6>Rol de Usuario</h6></div>
+                <div class="col-5">
+                    @* <input type="radio" name="radUsuarioRole" value="@CNT.Administrador" /> @CNT.Administrador
+                    <input type="radio" name="radUsuarioRole" value="@CNT.Secretaria" /> @CNT.Secretaria
+                    <input type="radio" name="radUsuarioRole" value="@CNT.Cajero" checked /> @CNT.Cajero *@
+                </div>
+            </div>
+            @*  } *@
+            <br />
+       
+
+            <div class="row">
+                <div class="col">
+                    <a asp-action="Index" class="btn btn-success form-control">Volver atrás</a>
+                </div>
+                &nbsp;
+                <div class="col">
+                    @* <button type="submit" class="btn btn-primary form-control">Editar</button> *@
+                    <a asp-action="Edit" class="btn btn-primary form-control"  asp-route-id="@Model?.CajeroUserVM.Id">Editar</a>
+                </div>
+
+            </div>
+
+            <br />
+
+        </div>
+
+        <div class="col-4 pt-3">
+            <img src="@Model.CajeroUserVM.UrlImagen" width="300px" style="border-radius:5px; border:1px solid #bbb9b9" />
+        </div>
+
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
+
+

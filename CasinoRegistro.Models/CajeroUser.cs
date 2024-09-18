@@ -19,6 +19,7 @@ namespace CasinoRegistro.Models
 
         [Required(ErrorMessage = "El Email es obligatorio")]
         [DataType(DataType.EmailAddress)]
+        [EmailAddress(ErrorMessage = "El Email no es una dirección de correo electrónico válida.")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "El Nombre es obligatorio")]
@@ -37,7 +38,7 @@ namespace CasinoRegistro.Models
 
 
         [Required(ErrorMessage = "Las fichas a cargar es obligatorio")]
-        [Display(Name = "Fichas a cargar")]
+        [Display(Name = "Fichas que puede cargar")]
         public int FichasCargar { get; set; }
 
         [Required(ErrorMessage = "El Porcentaje de Comisión es obligatorio")]
@@ -46,7 +47,7 @@ namespace CasinoRegistro.Models
 
         [DataType(DataType.ImageUrl)]
         [Display(Name = "Foto")]
-        public string UrlImagen { get; set; }
+        public string? UrlImagen { get; set; }
 
         [Display(Name = "Nombre Completo")]
 

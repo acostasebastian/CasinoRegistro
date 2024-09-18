@@ -13,14 +13,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 {
     [Area("Admin")]
     public class PlataformasController : Controller
-    {
-        //private readonly CasinoRegistroDbContext _context;
-
-        //public PlataformasController(CasinoRegistroDbContext context)
-        //{
-        //    _context = context;
-        //}
-
+    {      
         private readonly IContenedorTrabajo _contenedorTrabajo;
 
         public PlataformasController(IContenedorTrabajo contenedorTrabajo)
@@ -28,17 +21,14 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             _contenedorTrabajo = contenedorTrabajo;
         }
 
+        [HttpGet]
         // GET: Admin/Plataformas
-        public async Task<IActionResult> Index()
-          //   public IActionResult Index()
+        public async Task<IActionResult> Index()       
         {
-           // return View();
-            //return View(await _context.Plataforma.ToListAsync());
-           // return View( _contenedorTrabajo.Plataforma.GetAll());
-            return View(await _contenedorTrabajo.Plataforma.GetAll());
+            return View();        
         }
-       
 
+        [HttpGet]
         // GET: Admin/Plataformas/Create
         public IActionResult Create()
         {
@@ -84,11 +74,10 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(int id)
         {          
 
-            Plataforma plataforma = new Plataforma();
-            // plataforma = _contenedorTrabajo.Plataforma.Get(id);
-            plataforma = await _contenedorTrabajo.Plataforma.Get(id);
+            Plataforma plataforma = new Plataforma();            
+            plataforma = _contenedorTrabajo.Plataforma.Get(id);
 
-            //var plataforma = await _contenedorTrabajo.Plataforma.FindAsync(id);
+            
             if (plataforma == null)
             {
                 return NotFound();
@@ -103,27 +92,6 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Plataforma plataforma)
         {
-
-            //if (ModelState.IsValid)
-            //{
-            //    try
-            //    {
-            //        _context.Update(plataforma);
-            //        await _context.SaveChangesAsync();
-            //    }
-            //    catch (DbUpdateConcurrencyException)
-            //    {
-            //        if (!PlataformaExists(plataforma.Id))
-            //        {
-            //            return NotFound();
-            //        }
-            //        else
-            //        {
-            //            throw;
-            //        }
-            //    }
-            //    return RedirectToAction(nameof(Index));
-            //}
             if (ModelState.IsValid)
             {
                 //Logica para actualizar en BD
@@ -153,43 +121,30 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             }
             return View(plataforma);
         }
+      
 
-        //// GET: Admin/Plataformas/Delete/5
-        //public async Task<IActionResult> Delete(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+        #region Llamadas a la API
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            return Json(new { data = _contenedorTrabajo.Plataforma.GetAll() });
+        }
 
-        //    var plataforma = await _context.Plataforma
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (plataforma == null)
-        //    {
-        //        return NotFound();
-        //    }
 
-        //    return View(plataforma);
-        //}
+        [HttpDelete]
+        public IActionResult Delete(int id)
+        {
+            var objFromDb = _contenedorTrabajo.Plataforma.Get(id);
+            if (objFromDb == null)
+            {
+                return Json(new { success = false, message = "Error borrando la plataforma" });
+            }
 
-        //// POST: Admin/Plataformas/Delete/5
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(int id)
-        //{
-        //    var plataforma = await _context.Plataforma.FindAsync(id);
-        //    if (plataforma != null)
-        //    {
-        //        _context.Plataforma.Remove(plataforma);
-        //    }
+            _contenedorTrabajo.Plataforma.Remove(objFromDb);
+            _contenedorTrabajo.Save();
+            return Json(new { success = true, message = "Plataforma Borrada Correctamente" });
+        }
 
-        //    await _context.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
-
-        //private bool PlataformaExists(int id)
-        //{
-        //    return _context.Plataforma.Any(e => e.Id == id);
-        //}
+        #endregion
     }
 }

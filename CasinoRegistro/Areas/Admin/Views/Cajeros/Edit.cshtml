@@ -1,69 +1,153 @@
-﻿@model CasinoRegistro.Models.CajeroUser
+﻿@model CasinoRegistro.Models.ViewModels.CajeroViewModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar Cajero";
 }
 
-<h1>Edit</h1>
+<br />
+<br />
+<h3 class="text-center">Editar Cajero</h3>
+<form asp-action="Edit" method="POST" enctype="multipart/form-data">
+    <!--Se envía el ID del artículo como campo oculto-->
+    <input type="hidden" asp-for="CajeroUserVM.Id" />
 
-<h4>CajeroUser</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
+    <div class="row px-2 border">
+        <div asp-validation-summary="All" class="text-danger"></div>        
+        <div class="col-8 mt-4">
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="CajeroUserVM.Email"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="CajeroUserVM.Email" class="form-control" placeholder="Ingrese el Email" />
+                    <span asp-validation-for="CajeroUserVM.Email" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Nombre" class="control-label"></label>
-                <input asp-for="Nombre" class="form-control" />
-                <span asp-validation-for="Nombre" class="text-danger"></span>
+
+            <br />
+
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="CajeroUserVM.Nombre"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="CajeroUserVM.Nombre" class="form-control" placeholder="Ingrese el Nombre" />
+                    <span asp-validation-for="CajeroUserVM.Nombre" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Apellido" class="control-label"></label>
-                <input asp-for="Apellido" class="form-control" />
-                <span asp-validation-for="Apellido" class="text-danger"></span>
+
+            <br />
+
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="CajeroUserVM.Apellido"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="CajeroUserVM.Apellido" class="form-control" placeholder="Ingrese el Apellido" />
+                    <span asp-validation-for="CajeroUserVM.Apellido" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="DNI" class="control-label"></label>
-                <input asp-for="DNI" class="form-control" />
-                <span asp-validation-for="DNI" class="text-danger"></span>
+
+            <br />
+
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="CajeroUserVM.DNI"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="CajeroUserVM.DNI" class="form-control" placeholder="Ingrese el DNI" />
+                    <span asp-validation-for="CajeroUserVM.DNI" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Telefono" class="control-label"></label>
-                <input asp-for="Telefono" class="form-control" />
-                <span asp-validation-for="Telefono" class="text-danger"></span>
+
+            <br />
+
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="CajeroUserVM.Telefono"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="CajeroUserVM.Telefono" class="form-control" placeholder="Ingrese el Teléfono" />
+                    <span asp-validation-for="CajeroUserVM.Telefono" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="FichasCargar" class="control-label"></label>
-                <input asp-for="FichasCargar" class="form-control" />
-                <span asp-validation-for="FichasCargar" class="text-danger"></span>
+
+            <br />
+
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="CajeroUserVM.FichasCargar"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="CajeroUserVM.FichasCargar" class="form-control" placeholder="Ingrese las fichas que puede cargar" />
+                    <span asp-validation-for="CajeroUserVM.FichasCargar" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="PorcentajeComision" class="control-label"></label>
-                <input asp-for="PorcentajeComision" class="form-control" />
-                <span asp-validation-for="PorcentajeComision" class="text-danger"></span>
+
+            <br />
+
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="CajeroUserVM.PorcentajeComision"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="CajeroUserVM.PorcentajeComision" class="form-control" placeholder="Ingrese el Porcentaje de Comisión" value="50" />
+                    <span asp-validation-for="CajeroUserVM.PorcentajeComision" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="UrlImagen" class="control-label"></label>
-                <input asp-for="UrlImagen" class="form-control" />
-                <span asp-validation-for="UrlImagen" class="text-danger"></span>
+
+            <br />
+
+            <div class="form-group row">
+
+
+                <div class="col-4">
+                    <label asp-for="CajeroUserVM.UrlImagen" class="control-label"></label>
+                </div>
+
+                <div class="col-8">
+                    <input type="file" name="imagen" id="subidaArchivo" class="form-control" />
+                    <span asp-validation-for="CajeroUserVM.UrlImagen" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            <br />
+
+            <!--Autorización-->
+            @*   @if (User.IsInRole(CNT.Administrador))
+            { *@
+            <!--Selector de Roles-->
+            <div class="form-group row">
+                <div class="col-6"><h6>Seleccionar Rol de Usuario</h6></div>
+                <div class="col-5">
+                    @* <input type="radio" name="radUsuarioRole" value="@CNT.Administrador" /> @CNT.Administrador
+                    <input type="radio" name="radUsuarioRole" value="@CNT.Secretaria" /> @CNT.Secretaria
+                    <input type="radio" name="radUsuarioRole" value="@CNT.Cajero" checked /> @CNT.Cajero *@
+                </div>
             </div>
-        </form>
+            @*  } *@
+            <br />
+            <div class="form-group-row">
+                <div class="col-8">
+                    <partial name="_VistaEditarVolver" />
+                </div>
+            </div>
+
+            <br />
+
+        </div>
+
+        <div class="col-4 pt-3">
+            <img src="@Model.CajeroUserVM.UrlImagen" width="300px" style="border-radius:5px; border:1px solid #bbb9b9" />
+        </div>
+
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+</form>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
 }
+
+

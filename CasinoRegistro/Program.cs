@@ -5,6 +5,7 @@ using CasinoRegistro.DataAccess.Data.Repository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using CasinoRegistro.DataAccess.Data.Initialiser;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,14 @@ builder.Services.AddControllersWithViews();
 
 //Agregar contenedor de trabajo al contenedor IoC de inyección de dependencias
 builder.Services.AddScoped<IContenedorTrabajo, ContenedorTrabajo>();
+//builder.Services.AddScoped<IInicializadorBD, InicializadorBD>();
+
+
+////Siembra de datos - Paso 1
+//builder.Services.AddScoped<IInicializadorBD, InicializadorBD>();
+
+////agrego para que que tome los datos configurados por defecto en el appsettings.json
+//builder.Configuration.GetSection("Config");
 
 var app = builder.Build();
 
@@ -43,6 +52,9 @@ else
 }
 app.UseStaticFiles();
 
+//Método que ejecuta la siembra de datos
+//SiembraDatos();
+
 app.UseRouting();
 
 app.UseAuthorization();
@@ -53,3 +65,15 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
+
+
+
+//Funcionalidad método SiembraDeDatos();
+//void SiembraDatos()
+//{
+//    using (var scope = app.Services.CreateScope())
+//    {
+//        var inicializadorBD = scope.ServiceProvider.GetRequiredService<IInicializadorBD>();
+//        inicializadorBD.Inicializar();
+//    }
+//}

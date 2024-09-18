@@ -9,13 +9,13 @@ namespace CasinoRegistro.DataAccess.Data.Repository.IRepository
 {
     public interface IRepository<T> where T : class
     {
-        Task<T> Get(int id);
+       // Task<T> Get(int id);
 
-        Task<IEnumerable<T>> GetAll(
-              Expression<Func<T, bool>>? filter = null,
-              Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-              string? includeProperties = null
-          );
+        //Task<IEnumerable<T>> GetAll(
+        //      Expression<Func<T, bool>>? filter = null,
+        //      Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        //      string? includeProperties = null
+        //  );
 
 
 
@@ -24,13 +24,13 @@ namespace CasinoRegistro.DataAccess.Data.Repository.IRepository
         //     string? includeProperties = null
         //);
 
-       // T Get(int id);
+         T Get(int id);
 
-        //IEnumerable<T> GetAll(
-        //      Expression<Func<T, bool>>? filter = null,
-        //      Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-        //      string? includeProperties = null
-        //  );
+        IEnumerable<T> GetAll(
+              Expression<Func<T, bool>>? filter = null,
+              Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+              string? includeProperties = null
+          );
 
 
 

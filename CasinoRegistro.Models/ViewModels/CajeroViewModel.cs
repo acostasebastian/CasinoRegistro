@@ -8,7 +8,7 @@ using System.Web;
 
 namespace CasinoRegistro.Models.ViewModels
 {
-    public class CajeroViewModel
+    public class CajeroViewModel 
     {
         public CajeroUser CajeroUserVM { get; set; }
 
