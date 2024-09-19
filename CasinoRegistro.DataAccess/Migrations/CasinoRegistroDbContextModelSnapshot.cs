@@ -41,6 +41,9 @@ namespace CasinoRegistro.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<bool>("Estado")
+                        .HasColumnType("bit");
+
                     b.Property<int>("FichasCargar")
                         .HasColumnType("int");
 
@@ -51,12 +54,14 @@ namespace CasinoRegistro.DataAccess.Migrations
                     b.Property<double>("PorcentajeComision")
                         .HasColumnType("float");
 
+                    b.Property<string>("Rol")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Telefono")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UrlImagen")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -67,7 +72,7 @@ namespace CasinoRegistro.DataAccess.Migrations
                     b.HasIndex(new[] { "Email" }, "IX_Cajeros_Email")
                         .IsUnique();
 
-                    b.ToTable("Cajero", (string)null);
+                    b.ToTable("Cajero");
                 });
 
             modelBuilder.Entity("CasinoRegistro.Models.Plataforma", b =>
@@ -90,7 +95,7 @@ namespace CasinoRegistro.DataAccess.Migrations
                     b.HasIndex(new[] { "URL" }, "IX_Plataformas_URL")
                         .IsUnique();
 
-                    b.ToTable("Plataforma", (string)null);
+                    b.ToTable("Plataforma");
                 });
 #pragma warning restore 612, 618
         }

@@ -8,10 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using CasinoRegistro.DataAccess.Data;
 using CasinoRegistro.Models;
 using CasinoRegistro.DataAccess.Data.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CasinoRegistro.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Administrador,Secretaria")]
     public class PlataformasController : Controller
     {      
         private readonly IContenedorTrabajo _contenedorTrabajo;

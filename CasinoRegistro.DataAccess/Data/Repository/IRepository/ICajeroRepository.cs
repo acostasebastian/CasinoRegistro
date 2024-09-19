@@ -12,6 +12,10 @@ namespace CasinoRegistro.DataAccess.Data.Repository.IRepository
     {
         void Update(CajeroUser cajero);
 
-      
+
+        void BloquearCajero(CajeroUser cajeroDesdeBd, Task<Microsoft.AspNetCore.Identity.IdentityUser?> objFromDb);
+        void DesloquearCajero(CajeroUser cajeroDesdeBd, Task<Microsoft.AspNetCore.Identity.IdentityUser?> objFromDb);
+
+
     }
 }

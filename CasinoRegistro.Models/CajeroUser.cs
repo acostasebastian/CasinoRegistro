@@ -49,8 +49,11 @@ namespace CasinoRegistro.Models
         [Display(Name = "Foto")]
         public string? UrlImagen { get; set; }
 
-        [Display(Name = "Nombre Completo")]
+        public string? Rol { get; set; }
 
+        public bool Estado { get; set; }
+
+        [Display(Name = "Nombre Completo")]
         public string NombreCompleto
         {
             get { return Nombre + " " + Apellido; }

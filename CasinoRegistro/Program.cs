@@ -10,7 +10,7 @@ using CasinoRegistro.DataAccess.Data.Initialiser;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("ConexionSQL") ?? throw new InvalidOperationException("String de Conexión 'ConexionSQL' no encontrada.");
+var connectionString = builder.Configuration.GetConnectionString("ConexionSQL") ?? throw new InvalidOperationException("String de Conexiï¿½n 'ConexionSQL' no encontrada.");
 
 
 //Context para Identity
@@ -24,11 +24,11 @@ options.UseSqlServer(connectionString));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<IdentityUser,IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultUI();
 builder.Services.AddControllersWithViews();
 
-//Agregar contenedor de trabajo al contenedor IoC de inyección de dependencias
+//Agregar contenedor de trabajo al contenedor IoC de inyecciï¿½n de dependencias
 builder.Services.AddScoped<IContenedorTrabajo, ContenedorTrabajo>();
 //builder.Services.AddScoped<IInicializadorBD, InicializadorBD>();
 
@@ -52,7 +52,7 @@ else
 }
 app.UseStaticFiles();
 
-//Método que ejecuta la siembra de datos
+//Mï¿½todo que ejecuta la siembra de datos
 //SiembraDatos();
 
 app.UseRouting();
@@ -68,7 +68,7 @@ app.Run();
 
 
 
-//Funcionalidad método SiembraDeDatos();
+//Funcionalidad mï¿½todo SiembraDeDatos();
 //void SiembraDatos()
 //{
 //    using (var scope = app.Services.CreateScope())
