@@ -24,5 +24,7 @@ namespace CasinoRegistro.DataAccess.Data
         //}
         public DbSet<Plataforma> Plataforma { get; set; }
         public DbSet<CajeroUser> Cajero { get; set; }
+
+        public DbSet<RegistroMovimiento> RegistroMovimiento { get; set; }
     }
 }

@@ -16,12 +16,15 @@ namespace CasinoRegistro.DataAccess.Data.Repository
             _db = db;
             Plataforma = new PlataformaRepository(_db);
             Cajero = new CajeroRepository(_db);
+            RegistroMovimiento = new RegistroMovimientoRepository(_db);
 
         }
 
         public IPlataformaRepository Plataforma { get; private set; }
 
         public ICajeroRepository Cajero { get; private set; }
+
+        public IRegistroMovimientoRepository RegistroMovimiento { get; private set; }
 
         public void Dispose()
         {
