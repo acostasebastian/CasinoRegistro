@@ -42,17 +42,17 @@ namespace CasinoRegistro.Models
         public int? FichasCargadas { get; set; }
 
         [Display(Name = "Pesos Entregados")]
-        public double? PesosEntregados { get; set; }
+        public decimal? PesosEntregados { get; set; }
 
         [Display(Name = "Pesos Devueltos")]
-        public double? PesosDevueltos { get; set; }
+        public decimal? PesosDevueltos { get; set; }
 
         [Display(Name = "Comisión")]
-        public double? Comision { get; set; }
+        public decimal? Comision { get; set; }
+
+        public bool EsIngresoFichas { get; set; }
 
 
-        [Display(Name = "Deuda en Pesos Actual")]
-        public double? DeudaPesosActual { get; set; }
 
     }
 }

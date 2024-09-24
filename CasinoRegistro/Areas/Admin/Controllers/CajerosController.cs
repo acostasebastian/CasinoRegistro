@@ -179,7 +179,8 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                         }
 
                         cajeroVM.CajeroUserVM.Rol = rol;
-                        cajeroVM.CajeroUserVM.Estado = true;
+                        cajeroVM.CajeroUserVM.Estado = true;  //valor 1 
+                        cajeroVM.CajeroUserVM.DeudaPesosActual = 0;
 
                         //Logica para guardar en BD
                         _contenedorTrabajo.Cajero.Add(cajeroVM.CajeroUserVM);

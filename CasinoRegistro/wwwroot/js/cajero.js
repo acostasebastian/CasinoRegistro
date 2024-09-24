@@ -19,16 +19,19 @@ function cargarDataTable() {
             { "data": "nombre", "width": "5%" },
             { "data": "apellido", "width": "40%" },
             { "data": "email", "width": "10%" },
+            { "data": "deudaPesosActual", "width": "30%" },
+
             {
                 "data": "id",
                 "render": function (data, type, row) {
                     // Aquí obtenemos el estado desde la fila
-                    const estado = row.lockoutEnd;
+                    //const estado = row.lockoutEnd;
+                    const estado = row.estado;
                     let botonAccion;
 
-                    if (estado != undefined) {
+                    if (estado == false) {
                         botonAccion = `<a onclick=AccionBloqueo("/Admin/Cajeros/BloquearDesloquearCajero/${data}") class="btn btn-success text-white" style="cursor:pointer; width:150px;">
-                                        <i class="fa-solid fa-user-lock"></i> Desbloquear
+                                        <i class="fa-solid fa-lock-open"></i> Desbloquear
                                        </a>`;
                     } else {
                         botonAccion = `<a onclick=AccionBloqueo("/Admin/Cajeros/BloquearDesloquearCajero/${data}") class="btn btn-danger text-white" style="cursor:pointer; width:150px;">

@@ -62,6 +62,15 @@ namespace CasinoRegistro.DataAccess.Data.Repository
 
         }
 
-      
+
+        public void UpdateDeuda(int idCajero, decimal nuevaDeuda)
+        {            
+            var objDesdeDb = _db.Cajero.FirstOrDefault(s => s.Id == idCajero);
+            objDesdeDb.DeudaPesosActual = nuevaDeuda;
+        
+
+        }
+
+
     }
 }

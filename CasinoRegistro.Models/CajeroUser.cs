@@ -53,7 +53,11 @@ namespace CasinoRegistro.Models
 
         public bool Estado { get; set; }
 
+        [Display(Name = "Deuda en Pesos Actual")]
+        public decimal? DeudaPesosActual { get; set; }
+
         [Display(Name = "Nombre Completo")]
+    
         public string NombreCompleto
         {
             get { return Nombre + " " + Apellido; }

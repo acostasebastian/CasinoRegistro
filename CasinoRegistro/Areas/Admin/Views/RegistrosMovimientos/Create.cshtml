@@ -1,119 +1,132 @@
-﻿@* @model CasinoRegistro.Models.RegistroMovimiento *@
-@model CasinoRegistro.Models.ViewModels.RegistroMovimientoViewModel
+﻿@model CasinoRegistro.Models.ViewModels.RegistroMovimientoViewModel
 
 @{
     ViewData["Title"] = "Create";
 }
 
-
-
 <br />
 <br />
 <h3 class="text-center">Crear un nuevo Registro</h3>
 <form method="POST" asp-action="Create" enctype="multipart/form-data">
-    <input type="hidden" asp-for="FechaCreacion" />
+    <input type="hidden" asp-for="RegistroMovimientoVM.FechaCreacion" />
+    <input type="hidden" asp-for="RegistroMovimientoVM.EsIngresoFichas" />
     <div class="row px-2 offset-1 border">
         <div asp-validation-summary="All" class="text-danger"></div>
 
         <div class="col-10 offset-1 mt-4">
 
-            <br />
+            
             <div class="form-group row">
                 <div class="col-4">
                     <label for="Cajero">Cajero</label>
                 </div>
                 <div class="col-8">
 
-                    @Html.DropDownListFor(m => m.CajeroId, Model.ListaCajeros,
-                             "-Por favor seleccione un cajero-", new { @class = "form-control" })
+                    @Html.DropDownListFor(m => m.RegistroMovimientoVM.CajeroId, Model.ListaCajeros, "-Por favor seleccione un cajero-", new { @class = "form-control" })
 
-
-                </div>
-            </div>
-
-            <br />
-@* 
-            @Html.EditorFor(m => m.FechaCreacion, new { htmlAttributes = new { @class = "datepicker" } })
- *@
-            @*    <div class="form-group row">
-            <div class="col-4">
-            <label asp-for="FechaCreacion" class="control-label"></label>
-            </div>
-            <div class="col-8">
-
-            @Html.EditorFor(model => model.FechaCreacion, new { htmlAttributes = new { @class = "form-control" } })
-
-            <span asp-validation-for="FechaCreacion" class="text-danger"></span>
-            </div>
-
-            </div> *@
-
-            <div class="form-group row">
-                <div class="col-4">
-                    <label asp-for="FechaCreacion" class="control-label"></label>
-                </div>
-                <div class="col-8">
-                    <input asp-for="Fecha" class="form-control" value="@DateTime.Now" type="date" />  @* value="@DateTime.Now" *@
-                       @* @Html.TextBoxFor(model => model.FechaCreacion, "{0:dd/MM/yyyy}", new { @class = "form-control datefield" }) *@
-                    @* @Html.TextBoxFor(model => model.Fecha, "{0:dd/MM/yyyy}", new { Type = "date" }) *@
-                    @*  @Html.EditorFor(m => m.FechaCreacion, new { htmlAttributes = new { @class = "datepicker" } }) *@
-                   @*  <input type="date" id="last-start-date" value="@string.Format("{0:yyyy-MM-dd}", Model.FechaCreacion)" /> *@
-                    <span asp-validation-for="FechaCreacion" class="text-danger"></span>
-                </div>
-
-            </div>
-
-
-
-            <br />
-            <div class="form-group row">
-                <div class="col-4">
-                    <label asp-for="FichasCargadas"></label>
-                </div>
-                <div class="col-8">
-                    <input asp-for="FichasCargadas" class="form-control" placeholder="Ingrese las Fichas Cargadas" />
-                    <span asp-validation-for="FichasCargadas" class="text-danger"></span>
                 </div>
             </div>
             <br />
 
             <div class="form-group row">
                 <div class="col-4">
-                    <label asp-for="PesosEntregados"></label>
+                    <label asp-for="RegistroMovimientoVM.FechaCreacion" class="control-label"></label>
                 </div>
                 <div class="col-8">
-                    <input asp-for="PesosEntregados" class="form-control" placeholder="Ingrese los Pesos Entregados" />
-                    <span asp-validation-for="PesosEntregados" class="text-danger"></span>
+                    <input asp-for="Fecha" class="form-control"  />
+                    <span asp-validation-for="RegistroMovimientoVM.FechaCreacion" class="text-danger"></span>
                 </div>
+
             </div>
             <br />
 
-            <div class="form-group row">
-                <div class="col-4">
-                    <label asp-for="PesosDevueltos"></label>
+            @if (Model.RegistroMovimientoVM.EsIngresoFichas)
+            {
+               
+                <div class="form-group row">
+                    <div class="col-4">
+                        <label asp-for="RegistroMovimientoVM.FichasCargadas"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="RegistroMovimientoVM.FichasCargadas" class="form-control" placeholder="Ingrese las Fichas Cargadas" />
+                        <span asp-validation-for="RegistroMovimientoVM.FichasCargadas" class="text-danger"></span>
+                    </div>
+                </div>    
+                <br />
+                @Html.ActionLink("Calcular deuda registro 2", "CalcularDeuda", new { idCajero = 21, pesosEntregados = 0, pesosDevueltos = 10000, comision = 10000, deudaPesosActual = 0 }, new { @class = "btn btn-warning" })
+            }
+            else
+            {
+                <div class="form-group row">
+                    <div class="col-4">
+                        <label asp-for="RegistroMovimientoVM.PesosEntregados"></label>
+                    </div>
+                    <div class="col-8">
+                        @* <input id="pesos" asp-route-id="@Model.pesosEntrega" asp-for="pesosEntrega" class="form-control" placeholder="Ingrese los Pesos Entregados" type="number" /> *@
+                        <input asp-for="RegistroMovimientoVM.PesosEntregados" class="form-control" placeholder="Ingrese los Pesos Entregados" value="0" />
+                       @*  @Html.EditorFor(model => model.pesosEntrega, new { htmlAttributes = new { @class = "form-control" } }) *@
+                        <span asp-validation-for="RegistroMovimientoVM.PesosEntregados" class="text-danger"></span>
+                    </div>
                 </div>
-                <div class="col-8">
-                    <input asp-for="PesosDevueltos" class="form-control" placeholder="Ingrese los Pesos Entregados" />
-                    <span asp-validation-for="PesosDevueltos" class="text-danger"></span>
+                <br />
+
+                <div class="form-group row">
+                    <div class="col-4">
+                        <label asp-for="RegistroMovimientoVM.PesosDevueltos"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="RegistroMovimientoVM.PesosDevueltos" class="form-control" placeholder="Ingrese los Pesos Devueltos" value="0" />
+                        <span asp-validation-for="RegistroMovimientoVM.PesosDevueltos" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
-            <br />
+                <br />
 
-
-            <div class="form-group row">
-                <div class="col-4">
-                    <label asp-for="DeudaPesosActual"></label>
+                <div class="form-group row">
+                    <div class="col-4">
+                        <label asp-for="RegistroMovimientoVM.Comision"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="RegistroMovimientoVM.Comision" class="form-control" placeholder="Ingrese la comisión" value="0" />
+                        <span asp-validation-for="RegistroMovimientoVM.Comision" class="text-danger"></span>
+                    </div>
                 </div>
-                <div class="col-8">
-                    <input asp-for="DeudaPesosActual" class="form-control" disabled value="0" />
-                    <span asp-validation-for="DeudaPesosActual" class="text-danger"></span>
+                <br />
+
+             @*    <div class="form-group row">
+                    <div class="col-4">
+                        <label asp-for="DeudaPesosActual"></label>
+                    </div>
+                    <div class="col-8">
+                        <input id="deuda" asp-for="DeudaPesosActual" class="form-control" disabled value="0" />
+                        <span asp-validation-for="DeudaPesosActual" class="text-danger"></span>
+                    </div>
+                </div> *@
+                <br />
+
+                <div class="form-group-row">
+                <div class="col">
+                        @* <a asp-action="CalcularDeuda" asp-controller="RegistrosMovimientosController" class="btn btn-info form-control">Calcular deuda</a> *@
+                       @*  @Html.ActionLink("Calcular deuda 2", "CalcularDeuda", new { pesosEntrega = @Model.pesosEntrega }, new { @class = "btn btn-warning" }) *@
+                        @Html.ActionLink("Calcular deuda registro 3", "CalcularDeuda", new { idCajero = 21, pesosEntregados = 40000, pesosDevueltos = 0, comision = 0, deudaPesosActual = 0 }, new { @class = "btn btn-warning" })
+                        @Html.ActionLink("Calcular deuda registro 5", "CalcularDeuda", new { idCajero = 21, pesosEntregados = 0, pesosDevueltos = 20000, comision = 0, deudaPesosActual = 0 }, new { @class = "btn btn-warning" })
+                        @Html.ActionLink("Calcular deuda registro 7", "CalcularDeuda", new { idCajero = 21, pesosEntregados = 0, pesosDevueltos = 10000, comision = 10000, deudaPesosActual = 0 }, new { @class = "btn btn-warning" })
+
+
+                      @*   <a onclick=CalcularDeuda("/Admin/RegistrosMovimientos/CalcularDeuda/${data}") class="btn btn-danger text-white" style="cursor:pointer; width:140px;">
+                            <i class="far fa-trash-alt"></i> Calcular
+                        </a> *@
+
+                        @* <div class="col">
+                            <button type="submit" class="btn btn-primary form-control" formaction="/RegistrosMovimientosController/CalcularDeuda"> Calcular</button>
+                        </div> *@
                 </div>
-            </div>
-            <br />
+                </div>
+                <br />
 
+                
+            }                 
 
-
-            <br />
+            
 
 
             <div class="form-group-row">
@@ -132,187 +145,17 @@
 @section Scripts {
     @{
         <partial name="_ValidationScriptsPartial" />
-      
+        
     }
+    <script src="~/js/RealizarCalculo.js"></script>
+    
+
+
 }
+
+
+
 @* @Scripts.Render("~/bundles/jqueryval") *@
 
-<script>
 
-    $(document).ready(function(){
-
-      $('.datepicker').datepicker();
-
-     });
-
-</script>
-
-
-@* <h1>Create</h1>
-
-<h4>RegistroMovimiento</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="CajeroId" class="control-label"></label>
-                <select asp-for="CajeroId" class ="form-control" asp-items="ViewBag.CajeroId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="FechaCreacion" class="control-label"></label>
-                <input asp-for="FechaCreacion" class="form-control" />
-                <span asp-validation-for="FechaCreacion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FichasCargadas" class="control-label"></label>
-                <input asp-for="FichasCargadas" class="form-control" />
-                <span asp-validation-for="FichasCargadas" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PesosEntregados" class="control-label"></label>
-                <input asp-for="PesosEntregados" class="form-control" />
-                <span asp-validation-for="PesosEntregados" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PesosDevueltos" class="control-label"></label>
-                <input asp-for="PesosDevueltos" class="form-control" />
-                <span asp-validation-for="PesosDevueltos" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Comision" class="control-label"></label>
-                <input asp-for="Comision" class="form-control" />
-                <span asp-validation-for="Comision" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DeudaPesosActual" class="control-label"></label>
-                <input asp-for="DeudaPesosActual" class="form-control" />
-                <span asp-validation-for="DeudaPesosActual" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-} *@
-
-@* ------------------- *@
-@* <br />
-<br />
-<h3 class="text-center">Crear un nuevo Registro</h3>
-<form method="POST" asp-action="Create" enctype="multipart/form-data">
-    <input type="hidden" asp-for="RegistroMovimiento.FechaCreacion" />
-    <div class="row px-2 offset-1 border">
-        <div asp-validation-summary="All" class="text-danger"></div>
-
-        <div class="col-10 offset-1 mt-4">
-
-            <br />
-            <div class="form-group row">
-                <div class="col-4">
-                    <label for="Cajero">Cajero</label>
-                </div>
-                <div class="col-8">
-
-                    @Html.DropDownListFor(m => m.RegistroMovimiento.CajeroId, Model.ListaCajeros,
-                             "-Por favor seleccione un cajero-", new { @class = "form-control" })
-
-
-                </div>
-            </div>
-
-            <br />
-
-            <div class="form-group row">
-                <div class="col-4">
-                    <label asp-for="RegistroMovimiento.FechaCreacion" class="control-label"></label>
-                </div>
-                <div class="col-8">
-                    <input asp-for="RegistroMovimiento.FechaCreacion" class="form-control" type="date" />
-                    <span asp-validation-for="RegistroMovimiento.FechaCreacion" class="text-danger"></span>
-                </div>
-
-            </div>
-
-
-            <br />
-            <div class="form-group row">
-                <div class="col-4">
-                    <label asp-for="RegistroMovimiento.FichasCargadas"></label>
-                </div>
-                <div class="col-8">
-                    <input asp-for="RegistroMovimiento.FichasCargadas" class="form-control" placeholder="Ingrese las Fichas Cargadas" />
-                    <span asp-validation-for="RegistroMovimiento.FichasCargadas" class="text-danger"></span>
-                </div>
-            </div>
-            <br />
-
-            <div class="form-group row">
-                <div class="col-4">
-                    <label asp-for="RegistroMovimiento.PesosEntregados"></label>
-                </div>
-                <div class="col-8">
-                    <input asp-for="RegistroMovimiento.PesosEntregados" class="form-control" placeholder="Ingrese los Pesos Entregados" />
-                    <span asp-validation-for="RegistroMovimiento.PesosEntregados" class="text-danger"></span>
-                </div>
-            </div>
-            <br />
-
-            <div class="form-group row">
-                <div class="col-4">
-                    <label asp-for="RegistroMovimiento.PesosDevueltos"></label>
-                </div>
-                <div class="col-8">
-                    <input asp-for="RegistroMovimiento.PesosDevueltos" class="form-control" placeholder="Ingrese los Pesos Entregados" />
-                    <span asp-validation-for="RegistroMovimiento.PesosDevueltos" class="text-danger"></span>
-                </div>
-            </div>
-            <br />
-
-
-            <div class="form-group row">
-                <div class="col-4">
-                    <label asp-for="RegistroMovimiento.DeudaPesosActual"></label>
-                </div>
-                <div class="col-8">
-                    <input asp-for="RegistroMovimiento.DeudaPesosActual" class="form-control" disabled value="0" />
-                    <span asp-validation-for="RegistroMovimiento.DeudaPesosActual" class="text-danger"></span>
-                </div>
-            </div>
-            <br />
-
-
-
-            <br />
-
-
-            <div class="form-group-row">
-                <div class="col-8">
-                    <partial name="_VistaCrearVolver" />
-                </div>
-            </div>
-
-            <br />
-
-        </div>
-
-    </div>
-</form>
-
-@section Scripts {
-    @{
-        <partial name="_ValidationScriptsPartial" />
-    }
-} *@
-
-@* ------------------- *@
 

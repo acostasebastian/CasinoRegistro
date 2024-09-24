@@ -1,75 +1,4 @@
-﻿@* @model IEnumerable<CasinoRegistro.Models.ViewModels.RegistroMovimientoViewModel.RegistroMovimiento>
-
-@{
-    ViewData["Title"] = "Index";
-}
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.CajeroUser)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaCreacion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FichasCargadas)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PesosEntregados)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PesosDevueltos)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Comision)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DeudaPesosActual)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CajeroUser.Apellido)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FechaCreacion)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FichasCargadas)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PesosEntregados)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PesosDevueltos)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Comision)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DeudaPesosActual)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
- *@
+﻿
 
 
 @{
@@ -82,7 +11,8 @@
             <h2 class="text-primary">Lista de Movimientos</h2>
         </div>
         <div class="col-4 text-right">
-            <a asp-action="Create" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Crear Nuevo Registro</a>
+            <a asp-action="CreateFichas" class="btn btn-primary">  <i class="fa-solid fa-plus"></i> Ingreso de Fichas</a>
+            <a asp-action="CreateDinero" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Ingreso de Dinero</a>
         </div>
     </div>
 

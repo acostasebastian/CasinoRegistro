@@ -10,6 +10,7 @@ using CasinoRegistro.Models;
 using Microsoft.AspNetCore.Authorization;
 using CasinoRegistro.DataAccess.Data.Repository.IRepository;
 using CasinoRegistro.Models.ViewModels;
+using CasinoRegistro.DataAccess.Data.Repository;
 
 namespace CasinoRegistro.Areas.Admin.Controllers
 {
@@ -18,61 +19,105 @@ namespace CasinoRegistro.Areas.Admin.Controllers
     public class RegistrosMovimientosController : Controller
     {
         private readonly IContenedorTrabajo _contenedorTrabajo;
+        private readonly CasinoRegistroDbContext _db;
 
-        public RegistrosMovimientosController(IContenedorTrabajo contenedorTrabajo)
+        public RegistrosMovimientosController(IContenedorTrabajo contenedorTrabajo, CasinoRegistroDbContext db)
         {
             _contenedorTrabajo = contenedorTrabajo;
+            _db = db;
         }
 
         // GET: Admin/RegistroMovimientoes
         public async Task<IActionResult> Index()
         {
-            //var casinoRegistroDbContext = _contenedorTrabajo.RegistroMovimiento.Include(r => r.CajeroUser);
 
-            //return View(await casinoRegistroDbContext.ToListAsync());
-            //return View(_contenedorTrabajo.Cajero.GetAll());
             return View();
         }
 
-        // GET: Admin/RegistroMovimientoes/Details/5
-        //public async Task<IActionResult> Details(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
 
-        //    var registroMovimiento = await _context.RegistroMovimiento
-        //        .Include(r => r.CajeroUser)
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (registroMovimiento == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return View(registroMovimiento);
-        //}
 
         // GET: Admin/RegistroMovimientoes/Create
-        public IActionResult Create()
+        public IActionResult CreateFichas()
         {
             //ViewData["CajeroId"] = new SelectList(_contenedorTrabajo.RegistroMovimiento.GetListaCajeros(), "Id", "Apellido");
-          //  return View();
+            //  return View();
+
+
+
             RegistroMovimientoViewModel registroVM = new RegistroMovimientoViewModel()
             {
-                //RegistroMovimiento = new Models.RegistroMovimiento
-                //{
-                //    FechaCreacion = DateTime.Now,
-                //},
-                //RegistroMovimiento = new Models.RegistroMovimiento(),
-
+                RegistroMovimientoVM = new CasinoRegistro.Models.RegistroMovimiento
+                {
+                    EsIngresoFichas = true
+                },
                 Fecha = DateTime.Now,
+               
+                ListaCajeros = _contenedorTrabajo.RegistroMovimiento.GetListaCajeros()
+
+            };
+            return View("Create", registroVM);
+
+        }
+
+        public IActionResult CreateDinero()
+        {
+            //ViewData["CajeroId"] = new SelectList(_contenedorTrabajo.RegistroMovimiento.GetListaCajeros(), "Id", "Apellido");
+            //  return View();
+
+            //CajeroViewModel cajeroViewModel = new CajeroViewModel()
+            //{
+            //    CajeroUserVM = new CasinoRegistro.Models.CajeroUser(),
+            //    // ListaPlataformas = _contenedorTrabajo.Plataforma.GetListaPlataformas()
+            //};
+            //return View(cajeroViewModel);
+
+            RegistroMovimientoViewModel registroVM = new RegistroMovimientoViewModel()
+            {
+                RegistroMovimientoVM = new CasinoRegistro.Models.RegistroMovimiento
+                {
+                    EsIngresoFichas = false
+                },
+                Fecha = DateTime.Now,
+               
 
                 ListaCajeros = _contenedorTrabajo.RegistroMovimiento.GetListaCajeros()
 
             };
-            return View(registroVM);
 
+           
+            return View("Create", registroVM);
+
+
+        }
+
+        public ActionResult CalcularDeuda(int idCajero, double pesosEntregados, double pesosDevueltos, double comision, double deudaPesosActual)
+        // public double CalcularDeuda(int idCajero, double pesosEntregados, double pesosDevueltos, double comision, double deudaPesosActual)
+        //public ActionResult CalcularDeuda(double pesosEntrega)
+        {
+            // CajeroUser deuda = new CajeroUser();
+            decimal deuda = (decimal)_contenedorTrabajo.Cajero.Get(idCajero).DeudaPesosActual;
+
+
+            double calculo = 0;
+
+            calculo = ((double)deuda + pesosEntregados) - pesosDevueltos;
+
+
+            return View("Create");
+
+        }
+
+        public decimal RealizarCalculos(RegistroMovimientoViewModel registroMovimientoVM)
+        {
+            decimal nuevaDeuda = 0;
+
+            //Busco en la base de datos, la deuda actaul del cajero
+            decimal deuda = (decimal)_contenedorTrabajo.Cajero.Get(registroMovimientoVM.RegistroMovimientoVM.CajeroId).DeudaPesosActual;
+
+            //calculo la nueva deuda
+            nuevaDeuda = (deuda + (decimal)registroMovimientoVM.RegistroMovimientoVM.PesosEntregados) - (decimal)registroMovimientoVM.RegistroMovimientoVM.PesosDevueltos;
+
+            return nuevaDeuda;
         }
 
         // POST: Admin/RegistroMovimientoes/Create
@@ -81,54 +126,56 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         //public async Task<IActionResult> Create([Bind("Id,CajeroId,FechaCreacion,FichasCargadas,PesosEntregados,PesosDevueltos,Comision,DeudaPesosActual")] RegistroMovimiento registroMovimiento)
-          public async Task<IActionResult> Create(RegistroMovimientoViewModel registroMovimientoVM)
+        public async Task<IActionResult> Create(RegistroMovimientoViewModel registroMovimientoVM)
         {
-
-            //if (ModelState.IsValid)
-            //{
-            //    _contenedorTrabajo.RegistroMovimiento.Add(registroMovimiento);
-            //    _contenedorTrabajo.Save();
-            //    return RedirectToAction(nameof(Index));
-            //}
-            ////ViewData["CajeroId"] = new SelectList(_context.Cajero, "Id", "Apellido", registroMovimiento.CajeroId);
-            //ViewData["CajeroId"] = new SelectList(_contenedorTrabajo.RegistroMovimiento.GetListaCajeros(), "Id", "Apellido", registroMovimiento.CajeroId);
-            //return View(registroMovimiento);
-
-            ///-------------------
-            //ORIGINAL
-            //if (ModelState.IsValid)
-            //{
-            //    _context.Add(registroMovimiento);
-            //    await _context.SaveChangesAsync();
-            //    return RedirectToAction(nameof(Index));
-            //}
-            //ViewData["CajeroId"] = new SelectList(_context.Cajero, "Id", "Apellido", registroMovimiento.CajeroId);
-            //return View(registroMovimiento);
-
-
-
-            //--------------
 
             if (ModelState.IsValid)
             {
-                // registroMovimientoVM.FechaCreacion = registroMovimientoVM.FechaCreacion;
-                //var fecha = ModelState.Keys["FechaCreacion"].raw[1] ; // AHI APARECE EL VALOR, PERO NO PUEDO ACCEDER A EL
-
-                registroMovimientoVM.FechaCreacion = registroMovimientoVM.Fecha;
-
-                _contenedorTrabajo.RegistroMovimiento.Add(registroMovimientoVM);
-                try
+                using (var transaction = _db.Database.BeginTransaction())
                 {
-                    _contenedorTrabajo.Save();
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (Exception ex)
-                {
+                    //if (registroMovimientoVM.EsIngresoFichas == false)
+                    //{
 
-                    ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.Message);
-                    registroMovimientoVM.ListaCajeros = _contenedorTrabajo.RegistroMovimiento.GetListaCajeros();
-                }
+                    //    try
+                    //    {
+                    //        var deudaNueva = RealizarCalculos(registroMovimientoVM);
 
+                    //        _contenedorTrabajo.Cajero.UpdateDeuda(registroMovimientoVM.CajeroId, deudaNueva);
+                    //    }
+                    //    catch (Exception ex)
+                    //    {
+
+                    //        ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error en el calculo: " + ex.Message);
+                    //    }
+                    //}
+
+
+                    //registroMovimientoVM.FechaCreacion = registroMovimientoVM.Fecha;
+
+
+                    try
+                    {
+                        if (registroMovimientoVM.RegistroMovimientoVM.EsIngresoFichas == false)
+                        {
+                            var deudaNueva = RealizarCalculos(registroMovimientoVM);
+
+                        _contenedorTrabajo.Cajero.UpdateDeuda(registroMovimientoVM.RegistroMovimientoVM.CajeroId, deudaNueva);
+                        }
+
+                        registroMovimientoVM.RegistroMovimientoVM.FechaCreacion = registroMovimientoVM.Fecha;
+
+                        _contenedorTrabajo.RegistroMovimiento.Add(registroMovimientoVM.RegistroMovimientoVM);
+                        transaction.Commit();
+                        _contenedorTrabajo.Save();
+                        return RedirectToAction(nameof(Index));
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.Message);
+                        registroMovimientoVM.ListaCajeros = _contenedorTrabajo.RegistroMovimiento.GetListaCajeros();
+                    }
+                }
 
             }
             registroMovimientoVM.ListaCajeros = _contenedorTrabajo.RegistroMovimiento.GetListaCajeros();
@@ -137,21 +184,24 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         }
 
         //// GET: Admin/RegistroMovimientoes/Edit/5
-        //public async Task<IActionResult> Edit(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+        public async Task<IActionResult> Edit(int? id)
+        {
+            RegistroMovimientoViewModel registroViewModel = new RegistroMovimientoViewModel()
+            {
+                RegistroMovimientoVM = new CasinoRegistro.Models.RegistroMovimiento(),
+                ListaCajeros = _contenedorTrabajo.RegistroMovimiento.GetListaCajeros(),
+               
+            };
 
-        //    var registroMovimiento = await _context.RegistroMovimiento.FindAsync(id);
-        //    if (registroMovimiento == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    ViewData["CajeroId"] = new SelectList(_context.Cajero, "Id", "Apellido", registroMovimiento.CajeroId);
-        //    return View(registroMovimiento);
-        //}
+            if (id != null)
+            {
+                registroViewModel.RegistroMovimientoVM = _contenedorTrabajo.RegistroMovimiento.Get(id.GetValueOrDefault());
+
+                registroViewModel.Fecha = registroViewModel.RegistroMovimientoVM.FechaCreacion;
+            }
+
+            return View(registroViewModel);
+        }
 
         //// POST: Admin/RegistroMovimientoes/Edit/5
         //// To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -188,14 +238,32 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         //    ViewData["CajeroId"] = new SelectList(_context.Cajero, "Id", "Apellido", registroMovimiento.CajeroId);
         //    return View(registroMovimiento);
         //}
-              
+
+        // GET: Admin/RegistroMovimientoes/Details/5
+        //public async Task<IActionResult> Details(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    var registroMovimiento = await _context.RegistroMovimiento
+        //        .Include(r => r.CajeroUser)
+        //        .FirstOrDefaultAsync(m => m.Id == id);
+        //    if (registroMovimiento == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return View(registroMovimiento);
+        //}
 
 
         #region Llamadas a la API
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Json(new { data = _contenedorTrabajo.RegistroMovimiento.GetAll(includeProperties:"CajeroUser") });
+            return Json(new { data = _contenedorTrabajo.RegistroMovimiento.GetAll(includeProperties: "CajeroUser") });
         }
 
 

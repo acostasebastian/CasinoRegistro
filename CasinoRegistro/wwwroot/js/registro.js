@@ -14,7 +14,16 @@ function cargarDataTable() {
         },
         "columns": [
             { "data": "cajeroUser.nombreCompleto", "width": "30%" },            
-            { "data": "fechaCreacion", "width": "40%" },
+            /*{ "data": "fechaCreacion", "width": "40%" },*/
+            {
+                "data": "fechaCreacion",
+                "render": function (data) {
+                    const date = new Date(data);
+                    const formattedDate = date.toISOString().split('T')[0];
+                    return formattedDate;
+                },
+                "width": "40%"
+            },
             
             {
                 "data": "id",
