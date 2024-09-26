@@ -67,3 +67,14 @@ a {
         margin-left: .5em;
     }
 }
+
+/*agrupacion vistas*/
+tr.group,
+tr.group:hover {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+:root.dark tr.group,
+:root.dark tr.group:hover {
+    background-color: rgba(0, 0, 0, 0.75) !important;
+}
