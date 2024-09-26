@@ -40,7 +40,7 @@
                             <a class="nav-link active" href="#">
                                 Inicio
                                 <span class="visually-hidden">(current)</span>
-                            </a>
+                            </a>                           
                         </li>
 
                         <!--Autorización-->
@@ -57,6 +57,14 @@
                                 <a class="dropdown-item" href="#">Separated link</a> *@
                                 </div>
                             </li>
+                        }
+
+                        @if (User.IsInRole(CNT.Cajero))
+                        {
+                            @* <li class="nav-link active"> *@
+
+                            <a class="nav-link active" asp-area="Admin" asp-controller="RegistrosMovimientos" asp-action="MovimientosPorCajero">Movimientos</a>
+                            @* </li> *@
                         }
 
                     </ul>

@@ -16,11 +16,12 @@ using Microsoft.CodeAnalysis;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Globalization;
 using CasinoRegistro.Utilities;
+using System.Security.Claims;
 
 namespace CasinoRegistro.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Administrador,Secretaria")]
+    //[Authorize(Roles = "Administrador,Secretaria")]
     public class RegistrosMovimientosController : Controller
     {
         private readonly IContenedorTrabajo _contenedorTrabajo;
@@ -36,6 +37,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             //_cultura = cultura;
         }
 
+        [Authorize(Roles = "Administrador,Secretaria")]
         // GET: Admin/RegistroMovimientoes
         public async Task<IActionResult> Index()
         {
@@ -43,8 +45,16 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Cajero")]
+        // GET: Admin/RegistroMovimientoes
+        public async Task<IActionResult> MovimientosPorCajero()
+        {
+
+            return View();
+        }
 
 
+        [Authorize(Roles = "Administrador,Secretaria")]
         // GET: Admin/RegistroMovimientoes/Create
         public IActionResult CreateFichas()
         { 
@@ -72,6 +82,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
         }
 
+        [Authorize(Roles = "Administrador,Secretaria")]
         public IActionResult CreateDinero()
         {
             RegistroMovimientoViewModel registroVM = new RegistroMovimientoViewModel()
@@ -114,11 +125,12 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
         }
 
-      
+
 
         // POST: Admin/RegistroMovimientoes/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Administrador,Secretaria")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         //public async Task<IActionResult> Create([Bind("Id,CajeroId,FechaCreacion,FichasCargadas,PesosEntregados,PesosDevueltos,Comision,DeudaPesosActual")] RegistroMovimiento registroMovimiento)
@@ -175,46 +187,9 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
         }
 
-        public bool validarDatos(RegistroMovimientoViewModel registroMovimientoVM)
-        {
-            bool masErrores = false;
-
-            if (registroMovimientoVM.EsIngresoFichas == true)
-            {
-
-                if (registroMovimientoVM.FichasCargadas <= 0)
-                {
-                    ModelState.AddModelError(registroMovimientoVM.FichasCargadas.ToString(), "La cantidad de fichas debe ser mayor a cero.");
-                    masErrores = true;
-
-                }
-
-
-                //busco las fichas maximas que puede cargar el cajero
-                int fichasCajeroBD = _contenedorTrabajo.Cajero.Get(registroMovimientoVM.CajeroId).FichasCargar;
-
-                if (registroMovimientoVM.FichasCargadas >fichasCajeroBD )
-                {
-                    ModelState.AddModelError(registroMovimientoVM.FichasCargadas.ToString(), "La cantidad de fichas ingresadas es mayor a la que se le pueden cargar a este cajero.");
-                    masErrores = true;
-
-                }              
-            }
-            else
-            {
-                if (registroMovimientoVM.PesosEntregados <= 0 && registroMovimientoVM.PesosDevueltos <= 0 && registroMovimientoVM.Comision <= 0)
-                {
-                    ModelState.AddModelError(string.Empty, "Se debe ingresar al menos un monto de dinero.");
-                    masErrores = true;
-                }
-            }
-
-
-
-            return masErrores;
-        }
-
-        //// GET: Admin/RegistroMovimientoes/Edit/5
+       
+        // GET: Admin/RegistroMovimientoes/Edit/5
+        [Authorize(Roles = "Administrador,Secretaria")]
         public async Task<IActionResult> Edit(int? id)
         {
             RegistroMovimientoViewModel registroViewModel = new RegistroMovimientoViewModel();
@@ -253,11 +228,12 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             return View(registroViewModel);
         }
 
-    
+
 
         // POST: Admin/RegistroMovimientoes/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Administrador,Secretaria")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(RegistroMovimientoViewModel registroMovimientoVM)
@@ -441,6 +417,45 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             };
         }
 
+        public bool validarDatos(RegistroMovimientoViewModel registroMovimientoVM)
+        {
+            bool masErrores = false;
+
+            if (registroMovimientoVM.EsIngresoFichas == true)
+            {
+
+                if (registroMovimientoVM.FichasCargadas <= 0)
+                {
+                    ModelState.AddModelError(registroMovimientoVM.FichasCargadas.ToString(), "La cantidad de fichas debe ser mayor a cero.");
+                    masErrores = true;
+
+                }
+
+
+                //busco las fichas maximas que puede cargar el cajero
+                int fichasCajeroBD = _contenedorTrabajo.Cajero.Get(registroMovimientoVM.CajeroId).FichasCargar;
+
+                if (registroMovimientoVM.FichasCargadas > fichasCajeroBD)
+                {
+                    ModelState.AddModelError(registroMovimientoVM.FichasCargadas.ToString(), "La cantidad de fichas ingresadas es mayor a la que se le pueden cargar a este cajero.");
+                    masErrores = true;
+
+                }
+            }
+            else
+            {
+                if (registroMovimientoVM.PesosEntregados <= 0 && registroMovimientoVM.PesosDevueltos <= 0 && registroMovimientoVM.Comision <= 0)
+                {
+                    ModelState.AddModelError(string.Empty, "Se debe ingresar al menos un monto de dinero.");
+                    masErrores = true;
+                }
+            }
+
+
+
+            return masErrores;
+        }
+
         #endregion
 
         #region Llamadas a la API
@@ -448,6 +463,20 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         public IActionResult GetAll()
         {
             return Json(new { data = _contenedorTrabajo.RegistroMovimiento.GetAll(includeProperties: "CajeroUser") });
+        }
+
+        [HttpGet]
+        public IActionResult GetAllCajero()
+        {
+           // return Json(new { data = _contenedorTrabajo.RegistroMovimiento.GetAll(includeProperties: "CajeroUser") });
+
+            var claimsIdentity = (ClaimsIdentity)this.User.Identity;
+            var usuarioActual = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            var emailUsuarioActual = usuarioActual.Subject.Name;
+            var emails = _contenedorTrabajo.RegistroMovimiento.GetAll(u => u.CajeroUser.Email == emailUsuarioActual, includeProperties: "CajeroUser");
+
+            return Json(new { data = emails });
         }
 
 
