@@ -6,10 +6,14 @@
 
 <br />
 <br />
-<h3 class="text-center">Editar Movimiento</h3>
+<h3 class="text-center">@ViewBag.Encabezado</h3>
+@* <h3 class="text-center">Editar</h3> *@
 <form method="POST" asp-action="Edit">
     <!--Se envía el ID del cajero como campo oculto-->
-    <input type="hidden" asp-for="RegistroMovimientoVM.Id" />
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="FechaCreacion" />
+    <input type="hidden" asp-for="EsIngresoFichas" />
+    @* <input type="hidden" asp-for="CajeroUser.Id" /> *@
     <div class="row px-2 offset-1 border">
         <div asp-validation-summary="All" class="text-danger"></div>
 
@@ -22,34 +26,36 @@
                 </div>
                 <div class="col-8">
 
-                    @Html.DropDownListFor(m => m.RegistroMovimientoVM.CajeroId, Model.ListaCajeros, "-Por favor seleccione un cajero-", new { @class = "form-control" })
+                    @Html.DropDownListFor(m => m.CajeroVMId, Model.ListaCajeros, "-Por favor seleccione un cajero-", new { @class = "form-control" })
 
                 </div>
             </div>
             <br />
+
 
             <div class="form-group row">
                 <div class="col-4">
-                    <label asp-for="RegistroMovimientoVM.FechaCreacion" class="control-label"></label>
+                    <label asp-for="FechaCreacion" class="control-label"></label>
                 </div>
                 <div class="col-8">
-                    <input asp-for="Fecha" class="form-control" />
-                    <span asp-validation-for="RegistroMovimientoVM.FechaCreacion" class="text-danger"></span>
+                    @* <input asp-for="Fecha" class="form-control" /> *@
+                    <input asp-for="Fecha" class="form-control" value="@ViewBag.CurrentDateTime" type="datetime-local" />
+                    <span asp-validation-for="FechaCreacion" class="text-danger"></span>
                 </div>
 
             </div>
             <br />
 
-            @if (Model.RegistroMovimientoVM.EsIngresoFichas)
+            @if (Model.EsIngresoFichas)
             {
 
                 <div class="form-group row">
                     <div class="col-4">
-                        <label asp-for="RegistroMovimientoVM.FichasCargadas"></label>
+                        <label asp-for="FichasCargadas"></label>
                     </div>
                     <div class="col-8">
-                        <input asp-for="RegistroMovimientoVM.FichasCargadas" class="form-control" placeholder="Ingrese las Fichas Cargadas" />
-                        <span asp-validation-for="RegistroMovimientoVM.FichasCargadas" class="text-danger"></span>
+                        <input asp-for="FichasCargadas" class="form-control" placeholder="Ingrese las Fichas Cargadas" />
+                        <span asp-validation-for="FichasCargadas" class="text-danger"></span>
                     </div>
                 </div>
                 <br />
@@ -59,35 +65,36 @@
             {
                 <div class="form-group row">
                     <div class="col-4">
-                        <label asp-for="RegistroMovimientoVM.PesosEntregados"></label>
+                        <label asp-for="PesosEntregados"></label>
                     </div>
                     <div class="col-8">
                         @* <input id="pesos" asp-route-id="@Model.pesosEntrega" asp-for="pesosEntrega" class="form-control" placeholder="Ingrese los Pesos Entregados" type="number" /> *@
-                        <input asp-for="RegistroMovimientoVM.PesosEntregados" class="form-control" placeholder="Ingrese los Pesos Entregados" value="0" />
-                        @*  @Html.EditorFor(model => model.pesosEntrega, new { htmlAttributes = new { @class = "form-control" } }) *@
-                        <span asp-validation-for="RegistroMovimientoVM.PesosEntregados" class="text-danger"></span>
+                        <input asp-for="sPesosEntregados" class="form-control" placeholder="Ingrese los Pesos Entregados" />
+                        @*  @Html.EditorFor(model => model.PesosEntregados, new { htmlAttributes = new { @class = "form-control" } }) *@
+                        
+                        <span asp-validation-for="PesosEntregados" class="text-danger"></span>
                     </div>
                 </div>
                 <br />
 
                 <div class="form-group row">
                     <div class="col-4">
-                        <label asp-for="RegistroMovimientoVM.PesosDevueltos"></label>
+                        <label asp-for="PesosDevueltos"></label>
                     </div>
                     <div class="col-8">
-                        <input asp-for="RegistroMovimientoVM.PesosDevueltos" class="form-control" placeholder="Ingrese los Pesos Devueltos" value="0" />
-                        <span asp-validation-for="RegistroMovimientoVM.PesosDevueltos" class="text-danger"></span>
+                        <input asp-for="sPesosDevueltos" class="form-control" placeholder="Ingrese los Pesos Devueltos" />
+                        <span asp-validation-for="PesosDevueltos" class="text-danger"></span>
                     </div>
                 </div>
                 <br />
 
                 <div class="form-group row">
                     <div class="col-4">
-                        <label asp-for="RegistroMovimientoVM.Comision"></label>
+                        <label asp-for="Comision"></label>
                     </div>
                     <div class="col-8">
-                        <input asp-for="RegistroMovimientoVM.Comision" class="form-control" placeholder="Ingrese la comisión" value="0" />
-                        <span asp-validation-for="RegistroMovimientoVM.Comision" class="text-danger"></span>
+                        <input asp-for="sComision" class="form-control" placeholder="Ingrese la comisión" />
+                        <span asp-validation-for="Comision" class="text-danger"></span>
                     </div>
                 </div>
                 <br />
@@ -126,7 +133,9 @@
 
             }
 
-
+           @*  <div class="col">
+                <button type="submit" class="btn btn-primary form-control">Editar Artículo</button>
+            </div> *@
 
 
             <div class="form-group-row">

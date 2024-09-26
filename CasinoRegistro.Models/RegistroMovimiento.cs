@@ -42,6 +42,8 @@ namespace CasinoRegistro.Models
         public int? FichasCargadas { get; set; }
 
         [Display(Name = "Pesos Entregados")]
+        //[DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = true)]
+      //  [Range(1, double.MaxValue, ErrorMessage = "La cantidad de pesos entregadas debe estar entre {1} and {2}")]
         public decimal? PesosEntregados { get; set; }
 
         [Display(Name = "Pesos Devueltos")]

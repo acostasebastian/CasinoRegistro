@@ -14,12 +14,20 @@ function cargarDataTable() {
         },
         "columns": [
             { "data": "cajeroUser.nombreCompleto", "width": "30%" },            
-            /*{ "data": "fechaCreacion", "width": "40%" },*/
+            { "data": "fechaCreacion", "width": "40%" },
             {
                 "data": "fechaCreacion",
                 "render": function (data) {
                     const date = new Date(data);
-                    const formattedDate = date.toISOString().split('T')[0];
+
+                    let fecha = date.toISOString().split('T')[0];
+                    let arr = fecha.split('-');
+                    let tiempo = date.toISOString().split('T')[1];
+                    let arrTiempo = tiempo.split(':');
+
+                   // const formattedDate = arr[2] + '/' + arr[1] + '/' + arr[0] + " - " + arrTiempo[0] + ':' + arrTiempo[1];
+                    const formattedDate = date.toISOString().split('T')[0] + " - " + date.toISOString("").split('T')[1];
+                    //const formattedDate = date.toString();
                     return formattedDate;
                 },
                 "width": "40%"
@@ -72,6 +80,7 @@ function Delete(url) { /*ESTE METODO ES EL QUE SE LLAMA DESDE EL BOTON DE BORRAR
         text: "¡Este contenido no se puede recuperar!",
         type: "warning",
         showCancelButton: true,
+        cancelButtonText: "Cancelar",
         confirmButtonColor: "#DD6B55",
         confirmButtonText: "Si, ¡borrar!",
         closeOnconfirm: true

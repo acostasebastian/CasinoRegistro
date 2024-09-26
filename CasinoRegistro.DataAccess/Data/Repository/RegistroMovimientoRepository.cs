@@ -33,11 +33,15 @@ namespace CasinoRegistro.DataAccess.Data.Repository
 
         public void Update(RegistroMovimiento registroMovimiento)
         {
-            //var objDesdeDb = _db.Plataforma.FirstOrDefault(s => s.Id == plataforma.Id);
-            //objDesdeDb.URL = plataforma.URL;
-            //objDesdeDb.Descripcion = plataforma.Descripcion;
+            var objDesdeDb = _db.RegistroMovimiento.FirstOrDefault(s => s.Id == registroMovimiento.Id);
+            objDesdeDb.CajeroId = registroMovimiento.CajeroId;
+            objDesdeDb.FechaCreacion = registroMovimiento.FechaCreacion;
+            objDesdeDb.FichasCargadas = registroMovimiento.FichasCargadas;
+            objDesdeDb.PesosEntregados  = registroMovimiento.PesosEntregados; 
+            objDesdeDb.PesosDevueltos = registroMovimiento.PesosDevueltos;
+            objDesdeDb.Comision = registroMovimiento.Comision;
+            objDesdeDb.EsIngresoFichas = registroMovimiento.EsIngresoFichas;
 
-            throw new NotImplementedException();
         }
 
     }

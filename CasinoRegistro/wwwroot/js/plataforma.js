@@ -63,6 +63,7 @@ function Delete(url) { /*ESTE METODO ES EL QUE SE LLAMA DESDE EL BOTON DE BORRAR
         text: "¡Este contenido no se puede recuperar!",
         type: "warning",
         showCancelButton: true,
+        cancelButtonText: "Cancelar",
         confirmButtonColor: "#DD6B55",
         confirmButtonText: "Si, ¡borrar!",
         closeOnconfirm: true

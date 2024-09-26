@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using CasinoRegistro.DataAccess.Data.Initialiser;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +40,16 @@ builder.Services.AddScoped<IContenedorTrabajo, ContenedorTrabajo>();
 ////agrego para que que tome los datos configurados por defecto en el appsettings.json
 //builder.Configuration.GetSection("Config");
 
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] { "es-AR", "es" };
+    options.SetDefaultCulture(supportedCultures[0])
+        .AddSupportedCultures(supportedCultures)
+        .AddSupportedUICultures(supportedCultures);
+});
+
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -51,6 +62,13 @@ else
     app.UseExceptionHandler("/Home/Error");
 }
 app.UseStaticFiles();
+
+app.UseRequestLocalization("es-AR");
+//var cultureInfo = new CultureInfo("es-AR");
+//cultureInfo.NumberFormat.NumberDecimalSeparator = ".";
+//cultureInfo.NumberFormat.CurrencyDecimalSeparator = ".";
+//CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+//CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 //M�todo que ejecuta la siembra de datos
 //SiembraDatos();

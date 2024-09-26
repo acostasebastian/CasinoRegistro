@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 
 namespace CasinoRegistro.Models.ViewModels
 {
-    public class RegistroMovimientoViewModel //:RegistroMovimiento
+    public class RegistroMovimientoViewModel :RegistroMovimiento
     {
-        public RegistroMovimiento RegistroMovimientoVM { get; set; }
+        //public RegistroMovimiento RegistroMovimientoVM { get; set; }
+        public int CajeroVMId { get; set; }
         public IEnumerable<SelectListItem>? ListaCajeros { get; set; }
 
 
@@ -20,7 +21,10 @@ namespace CasinoRegistro.Models.ViewModels
 
       
 
-        public decimal pesosEntrega { get; set; }
+        public string sPesosEntregados { get; set; }
+        public string sPesosDevueltos { get; set; }
+        public string sComision { get; set; }
+        
 
     }
 }

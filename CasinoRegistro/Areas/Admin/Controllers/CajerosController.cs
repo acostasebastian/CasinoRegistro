@@ -49,15 +49,14 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         {
 
             //Opción 1: Obtener todos los usuario
-            return View(_contenedorTrabajo.Cajero.GetAll());
+            //return View(_contenedorTrabajo.Cajero.GetAll());
 
             //Opción 2: Obtener todos los usuarios menos el que esté logueado, para no bloquearse el mismo
 
 
-            //var claimsIdentity = (ClaimsIdentity)this.User.Identity;
-            //var usuarioActual = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+           
 
-
+            return View();
             // var user = await _userManager.FindByNameAsync(claimsIdentity.Name);
 
             //// return View(_contenedorTrabajo.Cajero.GetAll());
@@ -239,6 +238,13 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             if (id != null)
             {
                 cajeroViewModel.CajeroUserVM = _contenedorTrabajo.Cajero.Get(id.GetValueOrDefault());
+
+                if (cajeroViewModel.CajeroUserVM == null)
+                {
+                    return NotFound();
+
+                }
+
             }
 
             return View(cajeroViewModel);
@@ -449,23 +455,15 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Json(new { data = _contenedorTrabajo.Cajero.GetAll() });
+            var claimsIdentity = (ClaimsIdentity)this.User.Identity;
+            var usuarioActual = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            var emailUsuarioActual = usuarioActual.Subject.Name;
+            var emails = _contenedorTrabajo.Cajero.GetAll(u => u.Email != emailUsuarioActual);
+
+            return Json(new { data = emails });
         }
-
-
-        //[HttpDelete]
-        //public IActionResult Delete(int id)
-        //{
-        //    var objFromDb = _contenedorTrabajo.Cajero.Get(id);
-        //    if (objFromDb == null)
-        //    {
-        //        return Json(new { success = false, message = "Error borrando el cajero" });
-        //    }
-
-        //    _contenedorTrabajo.Cajero.Remove(objFromDb);
-        //    _contenedorTrabajo.Save();
-        //    return Json(new { success = true, message = "Cajero Borrado Correctamente" });
-        //}
+     
 
         public async Task<IActionResult> BloquearDesloquearCajero(int id)
         {
