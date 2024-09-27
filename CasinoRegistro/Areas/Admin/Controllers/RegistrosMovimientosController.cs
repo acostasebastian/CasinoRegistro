@@ -17,6 +17,10 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Globalization;
 using CasinoRegistro.Utilities;
 using System.Security.Claims;
+using MimeKit;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+//using System.Net.Mail;
 
 namespace CasinoRegistro.Areas.Admin.Controllers
 {
@@ -26,15 +30,17 @@ namespace CasinoRegistro.Areas.Admin.Controllers
     {
         private readonly IContenedorTrabajo _contenedorTrabajo;
         private readonly CasinoRegistroDbContext _db;
-       // private readonly CultureInfo _cultura;
+        // private readonly CultureInfo _cultura;
+        private readonly IConfiguration _config;
 
         public RegistrosMovimientosController(IContenedorTrabajo contenedorTrabajo, CasinoRegistroDbContext db
             //, CultureInfo cultura
+            , IConfiguration config
             )
         {
             _contenedorTrabajo = contenedorTrabajo;
             _db = db;
-            //_cultura = cultura;
+            _config = config;
         }
 
         [Authorize(Roles = "Administrador,Secretaria")]
@@ -152,6 +158,49 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                             registroMovimientoVM.FechaCreacion = registroMovimientoVM.Fecha;
 
                             _contenedorTrabajo.RegistroMovimiento.Add(registroMovimientoVM);
+
+                            #region envio del correo
+
+
+                            string textoCorreo = "Se ha registrado un nuevo movimiento en su cuenta de cajero en el Equipo Juampi.\r\n\r\n";
+
+                            if (registroMovimientoVM.EsIngresoFichas == true)
+                            {
+                                textoCorreo = textoCorreo + "Fichas Ingresadas: " + registroMovimientoVM.FichasCargadas;
+                            }
+                            else
+                            {
+                                textoCorreo = textoCorreo 
+                                    + "Pesos entregados a usted: " + registroMovimientoVM.PesosEntregados+"\r\n"
+                                    + "Pesos devueltos por usted: " + registroMovimientoVM.PesosDevueltos + "\r\n"
+                                    + "Comisión para usted: " + registroMovimientoVM.Comision + "\r\n"
+                                    + "Nueva deuda: " + registroMovimientoVM.CajeroUser.DeudaPesosActual + "\r\n"
+                                    ;
+                            }
+
+                            var mensaje = new MimeMessage();
+                            // mensaje.From.Add(new MailboxAddress("Test Envio mail", "seba.acosta85@gmail.com")); // Test Envio mail: Nombre con el que aparece ademas del correo y cuenta desde la que aparece
+                            mensaje.From.Add(new MailboxAddress(_config["EmailSettings:SenderName"], _config["EmailSettings:SenderEmail"]));
+                            mensaje.To.Add(new MailboxAddress("Test Enviado", registroMovimientoVM.CajeroUser.Email));
+                            mensaje.Subject = "Nuevo movimiento";
+                            mensaje.Body = new TextPart("plain")
+                            {
+                                Text = textoCorreo
+                            };
+
+                            using (var cliente = new SmtpClient())
+                            {
+                                //cliente.Connect("smtp.gmail.com", 465);
+                                //cliente.Authenticate("seba.acosta85", "agsahvnskuzxrlfu");
+                                
+                                cliente.Connect(_config["EmailSettings:SmtpServer"], int.Parse(_config["EmailSettings:SmtpPort"]), false);
+                                cliente.Authenticate(_config["EmailSettings:Username"], _config["EmailSettings:Password"]);
+                                cliente.Send(mensaje);
+                                cliente.Disconnect(true);
+
+                            }
+                            #endregion
+
                             transaction.Commit();
                             _contenedorTrabajo.Save();
                             return RedirectToAction(nameof(Index));

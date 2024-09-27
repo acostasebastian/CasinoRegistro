@@ -20,6 +20,10 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Azure.Identity;
 using CasinoRegistro.Data;
+using MimeKit;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+//using System.Net.Mail;
 
 namespace CasinoRegistro.Areas.Admin.Controllers
 {
@@ -33,24 +37,25 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly CasinoRegistroDbContext _db;
         private readonly RoleManager<IdentityRole> _roleManager;
-      
+        private readonly IConfiguration _config;
+
 
 
         public CajerosController(IContenedorTrabajo contenedorTrabajo, IWebHostEnvironment hostingEnvironment,
-            UserManager<IdentityUser> userManager, CasinoRegistroDbContext db, RoleManager<IdentityRole> roleManager)
+            UserManager<IdentityUser> userManager, CasinoRegistroDbContext db, RoleManager<IdentityRole> roleManager, IConfiguration config)
         {
             _contenedorTrabajo = contenedorTrabajo;
             _hostingEnvironment = hostingEnvironment;
             _userManager = userManager;
             _db = db;
-            _roleManager = roleManager;            
+            _roleManager = roleManager;
+            _config = config;
         }
 
         [Authorize(Roles = "Administrador,Secretaria")]
         // GET: Admin/Cajeros >> vista de cajeros
         public async Task<IActionResult> Index()
-        {         
-
+        {
             return View();         
         }
 
@@ -235,6 +240,40 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                         //Logica para guardar en BD
                         _contenedorTrabajo.Cajero.Add(cajeroVM.CajeroUserVM);
+
+
+                        #region Envio del mail
+
+                        //Para envio de correo
+
+                        var mensaje = new MimeMessage();
+                        //mensaje.From.Add(new MailboxAddress("Test Envio mail", "info@gmail.com")); // Test Envio mail: Nombre con el que aparece ademas del correo
+                        mensaje.From.Add(new MailboxAddress(_config["EmailSettings:SenderName"], _config["EmailSettings:SenderEmail"]));
+                        mensaje.To.Add(new MailboxAddress("Test Enviado", cajeroVM.CajeroUserVM.Email));
+                        mensaje.Subject = "Creación de cajero";
+                        mensaje.Body = new TextPart("plain")
+                        {
+                            Text = "Bienvenido. Ha sido dado de alta como cajero en el Equipo Juampi.\r\n" +
+                            "Su correo y credenciales son las siguientes. Se recomienda cambiar la contraseña desde su perfil luego de iniciar sesión. \r\n \r\n" +
+                            "Correo: " + cajeroVM.CajeroUserVM.Email + "\r\n"+
+                            "Contraseña: Admin1234."
+
+
+                           
+                        };
+
+                        using (var cliente = new SmtpClient())
+                        {
+                            //cliente.Connect("smtp.gmail.com", 465);
+                            //cliente.Authenticate("seba.acosta85", "agsahvnskuzxrlfu");
+                            cliente.Connect(_config["EmailSettings:SmtpServer"], int.Parse(_config["EmailSettings:SmtpPort"]), false);
+                            cliente.Authenticate(_config["EmailSettings:Username"], _config["EmailSettings:Password"]);
+                            cliente.Send(mensaje);
+                            cliente.Disconnect(true);
+
+                        }
+
+                        #endregion
 
 
                         _contenedorTrabajo.Save();
