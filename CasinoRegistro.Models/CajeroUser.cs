@@ -20,6 +20,7 @@ namespace CasinoRegistro.Models
         [Required(ErrorMessage = "El Email es obligatorio")]
         [DataType(DataType.EmailAddress)]
         [EmailAddress(ErrorMessage = "El Email no es una dirección de correo electrónico válida.")]
+        [StringLength(256)]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "El Nombre es obligatorio")]
@@ -57,7 +58,9 @@ namespace CasinoRegistro.Models
         public decimal? DeudaPesosActual { get; set; }
 
         [Display(Name = "Nombre Completo")]
-    
+
+        public bool EsCajero { get; set; }
+
         public string NombreCompleto
         {
             get { return Nombre + " " + Apellido; }

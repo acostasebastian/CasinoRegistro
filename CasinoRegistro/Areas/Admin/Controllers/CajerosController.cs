@@ -19,10 +19,11 @@ using CasinoRegistro.Utilities;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Azure.Identity;
+using CasinoRegistro.Data;
 
 namespace CasinoRegistro.Areas.Admin.Controllers
 {
-    [Authorize(Roles = "Administrador,Secretaria")]
+
     [Area("Admin")]
     public class CajerosController : Controller
     {
@@ -32,6 +33,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly CasinoRegistroDbContext _db;
         private readonly RoleManager<IdentityRole> _roleManager;
+      
 
 
         public CajerosController(IContenedorTrabajo contenedorTrabajo, IWebHostEnvironment hostingEnvironment,
@@ -41,30 +43,27 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             _hostingEnvironment = hostingEnvironment;
             _userManager = userManager;
             _db = db;
-            _roleManager = roleManager;
+            _roleManager = roleManager;            
         }
 
-        // GET: Admin/Cajeros
+        [Authorize(Roles = "Administrador,Secretaria")]
+        // GET: Admin/Cajeros >> vista de cajeros
         public async Task<IActionResult> Index()
+        {         
+
+            return View();         
+        }
+
+        [Authorize(Roles = "Administrador")]
+        // GET: Admin/Cajeros >> vista de Secretarias
+        public async Task<IActionResult> IndexSecretarias()
         {
 
-            //Opción 1: Obtener todos los usuario
-            //return View(_contenedorTrabajo.Cajero.GetAll());
-
-            //Opción 2: Obtener todos los usuarios menos el que esté logueado, para no bloquearse el mismo
-
-
-           
-
             return View();
-            // var user = await _userManager.FindByNameAsync(claimsIdentity.Name);
-
-            //// return View(_contenedorTrabajo.Cajero.GetAll());
-
-            //return View(_contenedorTrabajo.Cajero.GetAll(u => u.Id != usuarioActual.Value));
         }
 
 
+        [Authorize(Roles = "Administrador,Secretaria")]
         // GET: Admin/Cajeros/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -77,24 +76,73 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             if (id != null)
             {
                 cajeroViewModel.CajeroUserVM = _contenedorTrabajo.Cajero.Get(id.GetValueOrDefault());
-            }
+
+
+                if (cajeroViewModel.CajeroUserVM == null)
+                {
+                    return NotFound();
+
+                }
+
+                if (cajeroViewModel.CajeroUserVM.EsCajero == false)
+                {
+                    ViewBag.Titulo = "Detalles Secretaria";
+                    ViewBag.Encabezado = "Detalles Secretaria";
+                }
+
+                else
+                {
+                    ViewBag.Titulo = "Detalles Cajero";
+                    ViewBag.Encabezado = "Detalles Cajero";
+                }
+            }           
+
+       
 
             return View(cajeroViewModel);
 
         }
 
-        // GET: Admin/Cajeros/Create
+        [Authorize(Roles = "Administrador,Secretaria")]
+        // GET: Admin/Cajeros/Create >> Cajeros
         [HttpGet]
         public IActionResult Create()
+        {      
+            CajeroViewModel cajeroViewModel = new CajeroViewModel()
+            {
+                CajeroUserVM = new CasinoRegistro.Models.CajeroUser(),
+                
+                // ListaPlataformas = _contenedorTrabajo.Plataforma.GetListaPlataformas()
+            };
+
+            cajeroViewModel.CajeroUserVM.EsCajero = true;
+
+            ViewBag.Titulo = "Crear Cajero";
+            ViewBag.Encabezado = "Crear un nuevo Cajero";
+            return View("Create",cajeroViewModel);
+        }
+
+        [Authorize(Roles = "Administrador")]
+        // GET: Admin/Cajeros/Create >> Secretaria
+        [HttpGet]
+        public IActionResult CreateSecretaria()
         {
             CajeroViewModel cajeroViewModel = new CajeroViewModel()
             {
                 CajeroUserVM = new CasinoRegistro.Models.CajeroUser(),
                 // ListaPlataformas = _contenedorTrabajo.Plataforma.GetListaPlataformas()
             };
-            return View(cajeroViewModel);
+
+            cajeroViewModel.CajeroUserVM.EsCajero = false;
+            ViewBag.Titulo = "Crear Secretaria";
+            ViewBag.Encabezado = "Crear una nueva Secretaria";
+
+
+            return View("Create", cajeroViewModel);
         }
 
+
+        [Authorize(Roles = "Administrador,Secretaria")]
         // POST: Admin/Cajeros/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -110,6 +158,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                 {
                     try
                     {
+                        #region Imagen
                         string rutaPrincipal = _hostingEnvironment.WebRootPath;
                         var archivo = HttpContext.Request.Form.Files;
 
@@ -129,12 +178,9 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                             cajeroVM.CajeroUserVM.UrlImagen = @"imagenes\cajeros\" + nombreArchivo + extension;
 
                         }
+                        #endregion
 
-                        ////Logica para guardar en BD
-                        //_contenedorTrabajo.Cajero.Add(cajeroVM.CajeroUserVM);
-
-
-                        //_contenedorTrabajo.Save();
+                        #region Usuario y Rol
 
 
                         //CREA EL USUARIO EN ASPNET USERS
@@ -155,6 +201,9 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                             await _roleManager.CreateAsync(new IdentityRole(CNT.Cajero));
                         }
 
+
+
+
                         //Obtenemos el rol seleccionado
                         string rol = Request.Form["radUsuarioRole"].ToString();
 
@@ -169,13 +218,16 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                             if (rol == CNT.Secretaria)
                             {
                                 await _userManager.AddToRoleAsync(user, CNT.Secretaria);
+                                cajeroVM.CajeroUserVM.EsCajero = false;
                             }
                             else
                             {
                                 await _userManager.AddToRoleAsync(user, CNT.Cajero);
+                                cajeroVM.CajeroUserVM.EsCajero = true;
                             }
 
-                        }
+                        } 
+                        #endregion
 
                         cajeroVM.CajeroUserVM.Rol = rol;
                         cajeroVM.CajeroUserVM.Estado = true;  //valor 1 
@@ -187,15 +239,27 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                         _contenedorTrabajo.Save();
 
+                     
                         transaction.Commit();
-                        return RedirectToAction(nameof(Index));
+
+
+                        if (cajeroVM.CajeroUserVM.EsCajero == false)
+                        {
+                            return RedirectToAction(nameof(IndexSecretarias));
+                        }
+
+                        else
+                        {
+                            return RedirectToAction(nameof(Index));
+                        }
+
                     }
                     catch (Exception ex)
                     {
 
                         transaction.Rollback();
                         if (ex.InnerException != null &&
-                           ex.InnerException != null)
+                           ex.InnerException.Message != null)
                         {
 
                             if (ex.InnerException.Message.Contains("IX_Cajeros_Email"))
@@ -213,6 +277,10 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                                 ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.InnerException.Message);
                             }
                         }
+                        else
+                        {
+                            ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.Message);
+                        }
 
                         return View(cajeroVM);
                     }
@@ -225,9 +293,49 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             return View(cajeroVM);
         }
 
+        [Authorize(Roles = "Administrador,Secretaria")]
         [HttpGet]
         // GET: Admin/Cajeros/Edit/5
         public async Task<IActionResult> Edit(int? id)
+        {
+            CajeroViewModel cajeroViewModel = new CajeroViewModel()
+            {
+                CajeroUserVM = new CasinoRegistro.Models.CajeroUser(),
+                // ListaPlataformas = _contenedorTrabajo.Plataforma.GetListaPlataformas()
+            };
+
+            if (id != null)
+            {
+                cajeroViewModel.CajeroUserVM = _contenedorTrabajo.Cajero.Get(id.GetValueOrDefault());
+
+                var claimsIdentity = (ClaimsIdentity)this.User.Identity;
+                var rol = claimsIdentity.FindFirst(ClaimTypes.Role).Value;
+
+                if (rol == CNT.Secretaria && cajeroViewModel.CajeroUserVM.EsCajero == false)
+                {
+                    return View("AccesoDenegado");// PARA QUE UNA SECRETARIA PUEDA ACCEDER A EDITARLA DESDE LA URL
+                }
+
+                if (cajeroViewModel.CajeroUserVM == null)
+                {
+                    return NotFound();
+
+                }
+
+                cajeroViewModel.CajeroUserVM.EsCajero = true;
+
+                ViewBag.Titulo = "Editar Cajero";
+                ViewBag.Encabezado = "Editar Cajero";
+
+            }
+
+            return View("Edit",cajeroViewModel);
+        }
+
+        [Authorize(Roles = "Administrador")]
+        [HttpGet]
+        // GET: Admin/Cajeros/Edit/5
+        public async Task<IActionResult> EditSecretaria(int? id)
         {
             CajeroViewModel cajeroViewModel = new CajeroViewModel()
             {
@@ -245,11 +353,18 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                 }
 
+
+
+                cajeroViewModel.CajeroUserVM.EsCajero = false;
+
+                ViewBag.Titulo = "Editar Secretaria";
+                ViewBag.Encabezado = "Editar Secretaria";
             }
 
-            return View(cajeroViewModel);
+            return View("Edit",cajeroViewModel);
         }
 
+        [Authorize(Roles = "Administrador,Secretaria")]
         // POST: Admin/Cajeros/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -347,23 +462,15 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                                 {
                                     if (rol == CNT.Secretaria)
                                     {
-                                        await _userManager.AddToRoleAsync(user, CNT.Secretaria);
+                                        await _userManager.AddToRoleAsync(user, CNT.Secretaria);                                     
                                     }
                                     else
                                     {
-                                        await _userManager.AddToRoleAsync(user, CNT.Cajero);
-                                        //TODO: CORREGIR CUANDO PUEDA HACER QUE EL EDIT MUESTRE LO ELEGIDO TAMBIEN
-                                        cajeroVM.CajeroUserVM.Rol = "Cajero";
+                                        await _userManager.AddToRoleAsync(user, CNT.Cajero);                                        
                                     }
                                 }
                                 cajeroVM.CajeroUserVM.Rol = rol;
-                            }
-                            else
-                            {
-                                //TODO: CORREGIR CUANDO PUEDA HACER QUE EL EDIT MUESTRE LO ELEGIDO
-                                await _userManager.AddToRoleAsync(user, CNT.Cajero);
-                                cajeroVM.CajeroUserVM.Rol = "Cajero";
-                            }
+                            }                         
 
 
                         }
@@ -381,7 +488,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                         transaction.Rollback();
 
                         if (ex.InnerException != null &&
-                           ex.InnerException != null)
+                           ex.InnerException.Message != null)
                         {
 
                             if (ex.InnerException.Message.Contains("IX_Cajeros_Email"))
@@ -398,8 +505,15 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                             {
                                 ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.InnerException.Message);
                             }
+
+
                         }
-                     
+
+                        else
+                        {
+                            ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.Message);
+                        }
+
 
                         return View(cajeroVM);
                     }
@@ -412,44 +526,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
             return View(cajeroVM);
         }
-
-        //// GET: Admin/Cajeros/Delete/5
-        //public async Task<IActionResult> Delete(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var cajeroUser = await _context.Cajero
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (cajeroUser == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return View(cajeroUser);
-        //}
-
-        //// POST: Admin/Cajeros/Delete/5
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(int id)
-        //{
-        //    var cajeroUser = await _context.Cajero.FindAsync(id);
-        //    if (cajeroUser != null)
-        //    {
-        //        _context.Cajero.Remove(cajeroUser);
-        //    }
-
-        //    await _context.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
-
-        //private bool CajeroUserExists(int id)
-        //{
-        //    return _context.Cajero.Any(e => e.Id == id);
-        //}
+       
 
         #region Llamadas a la API
         [HttpGet]
@@ -459,22 +536,32 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             var usuarioActual = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
 
             var emailUsuarioActual = usuarioActual.Subject.Name;
-            var emails = _contenedorTrabajo.Cajero.GetAll(u => u.Email != emailUsuarioActual);
+            var emails = _contenedorTrabajo.Cajero.GetAll(u => u.Email != emailUsuarioActual && u.EsCajero == true);
 
             return Json(new { data = emails });
         }
-     
 
-        public async Task<IActionResult> BloquearDesloquearCajero(int id)
+        [HttpGet]
+        public IActionResult GetAllSecretaria()
+        {
+            var claimsIdentity = (ClaimsIdentity)this.User.Identity;
+            var usuarioActual = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            var emailUsuarioActual = usuarioActual.Subject.Name;
+            var emails = _contenedorTrabajo.Cajero.GetAll(u => u.Email != emailUsuarioActual && u.EsCajero == false);
+
+            return Json(new { data = emails });
+        }
+
+
+        public async Task<IActionResult> BloquearDesbloquearCajero(int id)
         {
             var cajeroDesdeBd = _contenedorTrabajo.Cajero.Get(id);
 
-            var objFromDb = _userManager.FindByNameAsync(cajeroDesdeBd.Email);
-
-         
+            var objFromDb = _userManager.FindByNameAsync(cajeroDesdeBd.Email);                   
           
 
-            //var objFromDb = _contenedorTrabajo.Cajero.GetString(id);
+        
             if (objFromDb == null)
             {
                 return Json(new { success = false, message = "Error bloqueando el cajero." });
@@ -484,10 +571,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
             if (objFromDb.Result.LockoutEnd == null || objFromDb.Result.LockoutEnd < DateTime.Now)
             {
-
-                //_contenedorTrabajo.Cajero.BloquearCajero(cajeroDesdeBd,objFromDb);
-
-               // objFromDb.Result.LockoutEnd = DateTime.Now.AddYears(1000);
+                               
 
                 cajeroDesdeBd.Estado = false;
                 

@@ -2,12 +2,12 @@
 @model CasinoRegistro.Models.ViewModels.CajeroViewModel
 
 @{
-    ViewData["Title"] = "Crear Cajero";
+    ViewData["Title"] = ViewBag.Titulo;
 }
 
 <br />
 <br />
-<h3 class="text-center">Crear un nuevo Cajero</h3>
+<h3 class="text-center">@ViewBag.Encabezado</h3>
 <form asp-action="Create" method="POST" enctype="multipart/form-data">
     <div class="row px-2 offset-1 border">
         <div asp-validation-summary="All" class="text-danger"></div>
@@ -73,29 +73,35 @@
 
             <br />
 
-            <div class="form-group row">
-                <div class="col-4">
-                    <label asp-for="CajeroUserVM.FichasCargar"></label>
+            @if (Model.CajeroUserVM.EsCajero)
+            {
+                <div class="form-group row">
+                    <div class="col-4">
+                        <label asp-for="CajeroUserVM.FichasCargar"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="CajeroUserVM.FichasCargar" class="form-control" placeholder="Ingrese las fichas que puede cargar" />
+                        <span asp-validation-for="CajeroUserVM.FichasCargar" class="text-danger"></span>
+                    </div>
                 </div>
-                <div class="col-8">
-                    <input asp-for="CajeroUserVM.FichasCargar" class="form-control" placeholder="Ingrese las fichas que puede cargar" />
-                    <span asp-validation-for="CajeroUserVM.FichasCargar" class="text-danger"></span>
-                </div>
-            </div>
 
-            <br />
+                <br />
 
-            <div class="form-group row">
-                <div class="col-4">
-                    <label asp-for="CajeroUserVM.PorcentajeComision"></label>
+                //POR EL MOMENTO NO SE USA
+               @*  <div class="form-group row">
+                    <div class="col-4">
+                        <label asp-for="CajeroUserVM.PorcentajeComision"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="CajeroUserVM.PorcentajeComision" class="form-control" placeholder="Ingrese el Porcentaje de Comisión" value="50" />
+                        <span asp-validation-for="CajeroUserVM.PorcentajeComision" class="text-danger"></span>
+                    </div>
                 </div>
-                <div class="col-8">
-                    <input asp-for="CajeroUserVM.PorcentajeComision" class="form-control" placeholder="Ingrese el Porcentaje de Comisión" value="50" />
-                    <span asp-validation-for="CajeroUserVM.PorcentajeComision" class="text-danger"></span>
-                </div>
-            </div>
 
-            <br />
+                <br /> *@
+            }
+
+            
 
             <div class="form-group row">
                
@@ -115,22 +121,67 @@
             <!--Autorización-->
             @if (User.IsInRole(CNT.Administrador))
             {
-                <!--Selector de Roles-->
-                <div class="form-group row">
-                    <div class="col-6"><h6>Seleccionar Rol de Usuario</h6></div>
-                    <div class="col-5">
-                        <input type="radio" name="radUsuarioRole" value="@CNT.Administrador" /> @CNT.Administrador
-                        <input type="radio" name="radUsuarioRole" value="@CNT.Secretaria" /> @CNT.Secretaria
-                        <input type="radio" name="radUsuarioRole" value="@CNT.Cajero" checked /> @CNT.Cajero                 
+                if (Model.CajeroUserVM.EsCajero == false) 
+                {
+                    <!--Selector de Roles-->
+                    <div class="form-group row">
+                        <div class="col-6"><h6>Seleccionar Rol de Usuario</h6></div>
+                        <div class="col-5">
+                            <input type="radio" name="radUsuarioRole" value="@CNT.Administrador" /> @CNT.Administrador
+                            <input type="radio" name="radUsuarioRole" value="@CNT.Secretaria" checked /> @CNT.Secretaria
+                            <input type="radio" name="radUsuarioRole" value="@CNT.Cajero"  /> @CNT.Cajero
+                        </div>
                     </div>
-                </div>
+                }
+                else
+                {
+                    <!--Selector de Roles-->
+                    <div class="form-group row">
+                        <div class="col-6"><h6>Seleccionar Rol de Usuario</h6></div>
+                        <div class="col-5">
+                            <input type="radio" name="radUsuarioRole" value="@CNT.Administrador" /> @CNT.Administrador
+                            <input type="radio" name="radUsuarioRole" value="@CNT.Secretaria" /> @CNT.Secretaria
+                            <input type="radio" name="radUsuarioRole" value="@CNT.Cajero" checked /> @CNT.Cajero
+                        </div>
+                    </div>
+                }
+
+             
             }
-            <br />
+
+            else if (User.IsInRole(CNT.Secretaria))
+            {
+                <input type="radio" name="radUsuarioRole" value="@CNT.Cajero" checked hidden/>
+            }
+            <br />        
+
             <div class="form-group-row">
                 <div class="col-8">
-                    <partial name="_VistaCrearVolver" />
+                    <div class="row">
+                        <div class="col">
+                         
+                            @if (Model.CajeroUserVM.EsCajero == false)
+                            {
+                                <a asp-action="IndexSecretarias" class="btn btn-success form-control">Volver atrás</a>
+                            }
+
+                            else
+                            {
+                                <a asp-action="Index" class="btn btn-success form-control">Volver atrás</a>
+                            }
+
+                           
+                        </div>
+                        &nbsp;
+                        <div class="col">
+                            <button type="submit" class="btn btn-primary form-control">Crear</button>
+                        </div>
+
+                    </div>
                 </div>
             </div>
+
+           
 
             <br />
 

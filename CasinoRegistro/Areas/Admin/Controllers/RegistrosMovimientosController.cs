@@ -45,7 +45,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             return View();
         }
 
-        [Authorize(Roles = "Cajero")]
+        [Authorize(Roles = "Administrador,Secretaria,Cajero")]
         // GET: Admin/RegistroMovimientoes
         public async Task<IActionResult> MovimientosPorCajero()
         {
@@ -59,11 +59,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         public IActionResult CreateFichas()
         { 
             RegistroMovimientoViewModel registroVM = new RegistroMovimientoViewModel()
-            {
-                //RegistroMovimientoVM = new CasinoRegistro.Models.RegistroMovimiento
-                //{
-                //    EsIngresoFichas = true
-                //},
+            {                
                 EsIngresoFichas =true,
                 Fecha = DateTime.Now,
                
@@ -86,11 +82,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         public IActionResult CreateDinero()
         {
             RegistroMovimientoViewModel registroVM = new RegistroMovimientoViewModel()
-            {
-                //RegistroMovimientoVM = new CasinoRegistro.Models.RegistroMovimiento
-                //{
-                //    EsIngresoFichas = false
-                //},
+            {               
                 EsIngresoFichas = false,
                 Fecha = DateTime.Now,
                
@@ -301,25 +293,32 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         }
 
 
-
+        [Authorize(Roles = "Administrador,Secretaria,Cajero")]
         // GET: Admin/RegistroMovimientoes/Details/5
-        //public async Task<IActionResult> Details(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-        //    var registroMovimiento = await _context.RegistroMovimiento
-        //        .Include(r => r.CajeroUser)
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (registroMovimiento == null)
-        //    {
-        //        return NotFound();
-        //    }
+            
+            RegistroMovimientoViewModel registroViewModel = new RegistroMovimientoViewModel();
 
-        //    return View(registroMovimiento);
-        //}
+            RegistroMovimiento registroMovimiento = _contenedorTrabajo.RegistroMovimiento.GetFirstOrDefault(c => c.Id == id.GetValueOrDefault(), includeProperties: "CajeroUser");
+
+            if (registroMovimiento == null)
+            {
+                return NotFound();
+
+            }
+
+            registroViewModel = ToViewModel(registroMovimiento);
+         
+            ViewBag.CurrentDateTime = registroViewModel.Fecha.ToString("yyyy-MM-dd HH:mm");
+
+            return View(registroViewModel);
+        }
 
 
         #region Metodos Propios
@@ -372,7 +371,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
 
                 CajeroId = registroMovimiento.CajeroId,
-                // CajeroUser = _contenedorTrabajo.Cajero.Get(registroMovimiento.CajeroId),                
+                CajeroUser = registroMovimiento.CajeroUser,//_contenedorTrabajo.Cajero.Get(registroMovimiento.CajeroId),                
                 FechaCreacion = registroMovimiento.FechaCreacion,
                 FichasCargadas = registroMovimiento.FichasCargadas,
                 //PesosEntregados = registroMovimiento.PesosEntregados,

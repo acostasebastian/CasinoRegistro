@@ -59,7 +59,7 @@ function cargarDataTable() {
 
             //        // const formattedDate = arr[2] + '/' + arr[1] + '/' + arr[0] + " - " + arrTiempo[0] + ':' + arrTiempo[1];
             //        const formattedDate = date.toISOString().split('T')[0] + " - " + date.toISOString("").split('T')[1];
-            //        //const formattedDate = date.toString();
+            //       // const formattedDate = date.toString("yyyy-MM-dd HH:mm");
             //        return formattedDate;
             //    },
             //    "width": "30%"
@@ -69,6 +69,10 @@ function cargarDataTable() {
                 "data": "id",
                 "render": function (data) {
                     return `<div class="text-center">
+                                 <a href="/Admin/RegistrosMovimientos/Details/${data}" class="btn btn-info text-white" style="cursor:pointer; width:140px;">
+                                <i class="fa-solid fa-circle-info"></i> Detalles
+                                </a>
+                                &nbsp;
                                 <a href="/Admin/RegistrosMovimientos/Edit/${data}" class="btn btn-success text-white" style="cursor:pointer; width:140px;">
                                 <i class="far fa-edit"></i> Editar
                                 </a>

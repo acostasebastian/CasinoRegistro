@@ -58,15 +58,26 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                 {
 
                     if (ex.InnerException != null &&
-                       ex.InnerException != null &&
-                       ex.InnerException.Message.Contains("IX_Plataformas_URL"))
+                       ex.InnerException.Message != null)                                       
                     {
-                        ModelState.AddModelError(string.Empty, "Esta Plataforma ya existe");
+
+                        if (ex.InnerException.Message.Contains("IX_Plataformas_URL"))
+                        {
+                            ModelState.AddModelError(string.Empty, "Esta Plataforma ya existe");
+                        }
+
+                        else
+                        {
+                            ModelState.AddModelError(string.Empty,ex.InnerException.Message);
+                        }             
+                     
                     }
+
                     else
                     {
                         ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.Message);
                     }
+
                 }
             }
             return View(plataforma);
@@ -107,12 +118,23 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                 catch (Exception ex)
                 {
 
+
                     if (ex.InnerException != null &&
-                      ex.InnerException != null &&
-                      ex.InnerException.Message.Contains("IX_Plataformas_URL"))
+                       ex.InnerException.Message != null)
                     {
-                        ModelState.AddModelError(string.Empty, "Esta Plataforma ya existe");
+
+                        if (ex.InnerException.Message.Contains("IX_Plataformas_URL"))
+                        {
+                            ModelState.AddModelError(string.Empty, "Esta Plataforma ya existe");
+                        }
+
+                        else
+                        {
+                            ModelState.AddModelError(string.Empty, ex.InnerException.Message);
+                        }
+
                     }
+
                     else
                     {
                         ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.Message);

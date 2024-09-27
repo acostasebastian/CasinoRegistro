@@ -1,55 +1,141 @@
-﻿@model CasinoRegistro.Models.RegistroMovimiento
+﻿@model CasinoRegistro.Models.ViewModels.RegistroMovimientoViewModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Editar Movimiento";
 }
 
-<h1>Details</h1>
+<br />
+<br />
+<h3 class="text-center">@ViewBag.Encabezado</h3>
+@* <h3 class="text-center">Editar</h3> *@
+<form method="POST" asp-action="Edit">
+    <!--Se envía el ID del cajero como campo oculto-->
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="FechaCreacion" />
+    <input type="hidden" asp-for="EsIngresoFichas" />
+    @* <input type="hidden" asp-for="CajeroUser.Id" /> *@
+    <div class="row px-2 offset-1 border">
+        <div asp-validation-summary="All" class="text-danger"></div>
 
-<div>
-    <h4>RegistroMovimiento</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CajeroUser)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CajeroUser.Apellido)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FechaCreacion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FechaCreacion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FichasCargadas)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FichasCargadas)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PesosEntregados)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PesosEntregados)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PesosDevueltos)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PesosDevueltos)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Comision)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Comision)
-        </dd>
-     
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+        <div class="col-10 offset-1 mt-4">
+
+
+            <div class="form-group row">
+                <div class="col-4">
+                    <label for="Cajero">Cajero</label>
+                </div>
+                <div class="col-8">
+
+                  @*   @Html.DropDownListFor(m => m.CajeroVMId, Model.ListaCajeros, "-Por favor seleccione un cajero-", new { @class = "form-control" }) *@
+                    <input asp-for="CajeroUser.NombreCompleto" class="form-control" disabled />
+
+                </div>
+            </div>
+            <br />
+
+
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="FechaCreacion" class="control-label"></label>
+                </div>
+                <div class="col-8">
+                    
+                    <input asp-for="Fecha" class="form-control" value="@ViewBag.CurrentDateTime" type="datetime-local" disabled/>
+                    
+                </div>
+
+            </div>
+            <br />
+
+            @if (Model.EsIngresoFichas)
+            {
+
+                <div class="form-group row">
+                    <div class="col-4">
+                        <label asp-for="FichasCargadas"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="FichasCargadas" class="form-control" disabled />                        
+                    </div>
+                </div>
+                <br />
+                
+            }
+            else
+            {
+                <div class="form-group row">
+                    <div class="col-4">
+                        <label asp-for="PesosEntregados"></label>
+                    </div>
+                    <div class="col-8">
+                        @* <input id="pesos" asp-route-id="@Model.pesosEntrega" asp-for="pesosEntrega" class="form-control" placeholder="Ingrese los Pesos Entregados" type="number" /> *@
+                        <input asp-for="sPesosEntregados" class="form-control" disabled />
+                        @*  @Html.EditorFor(model => model.PesosEntregados, new { htmlAttributes = new { @class = "form-control" } }) *@
+                        
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group row">
+                    <div class="col-4">
+                        <label asp-for="PesosDevueltos"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="sPesosDevueltos" class="form-control" disabled />
+                        
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group row">
+                    <div class="col-4">
+                        <label asp-for="Comision"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="sComision" class="form-control" disabled />                        
+                    </div>
+                </div>
+                <br />
+                                          
+
+
+            }
+
+            @*  <div class="col">
+            <button type="submit" class="btn btn-primary form-control">Editar Artículo</button>
+            </div> *@
+
+
+
+            <div class="row">
+                <div class="col">
+                    <a asp-action="Index" class="btn btn-success form-control">Volver atrás</a>
+                </div>
+                &nbsp;
+                <div class="col">
+                    @* <button type="submit" class="btn btn-primary form-control">Editar</button> *@
+                    <a asp-action="Edit" class="btn btn-primary form-control" asp-route-id="@Model?.Id">Editar</a>
+                </div>
+
+            </div>
+
+            <br />
+
+        </div>
+
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+
+    }
+}
+
+
+
+
+
+
+

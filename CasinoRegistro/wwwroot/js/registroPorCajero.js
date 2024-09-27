@@ -102,6 +102,7 @@ function cargarDataTable() {
                 "previous": "Anterior"
             }
         },
+        responsive: true,
         "width": "100%"
     });
 

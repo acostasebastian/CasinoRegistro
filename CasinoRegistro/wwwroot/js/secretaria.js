@@ -6,9 +6,9 @@ $(document).ready(function () {
 
 
 function cargarDataTable() {
-    dataTable = $("#tblCajeros").DataTable({
+    dataTable = $("#tblSecretarias").DataTable({
         "ajax": {
-            "url": "/admin/cajeros/GetAll",
+            "url": "/admin/cajeros/GetAllSecretaria",
             "type": "GET",
             "datatype": "json"
 
@@ -18,8 +18,7 @@ function cargarDataTable() {
         "columns": [
             { "data": "nombre", "width": "15%" },
             { "data": "apellido", "width": "15%" },
-            { "data": "email", "width": "15%" },
-            { "data": "deudaPesosActual", "width": "10%" },
+            { "data": "email", "width": "15%" },            
 
             {
                 "data": "id",
@@ -43,7 +42,7 @@ function cargarDataTable() {
                                 <i class="fa-solid fa-circle-info"></i> Detalles
                                 </a>
                                 &nbsp;
-                                <a href="/Admin/Cajeros/Edit/${data}" class="btn btn-success text-white" style="cursor:pointer; width:140px;">
+                                <a href="/Admin/Cajeros/EditSecretaria/${data}" class="btn btn-success text-white" style="cursor:pointer; width:140px;">
                                 <i class="far fa-edit"></i> Editar
                                 </a>
                                 &nbsp;
@@ -54,6 +53,8 @@ function cargarDataTable() {
             }
         ],
         "language": {
+            /*"url": "//cdn.datatables.net/plug-ins/2.1.7/i18n/es-AR.json",*/
+            
             "decimal": "",
             "emptyTable": "No hay registros",
             "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
@@ -73,7 +74,7 @@ function cargarDataTable() {
                 "previous": "Anterior"
             }
         },
-        responsive:true,
+        responsive: true,
         "width": "100%"
     });
 }

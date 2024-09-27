@@ -18,8 +18,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
-    <!--Agregadas para el agreupamiento de las filas de la vista -->
+    <!--Agregadas para el agrupamiento de las filas de la vista -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.1.7/css/dataTables.dataTables.css" />
+
+    <!--Agregadas para las vistas responsive -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.7/css/dataTables.bootstrap5.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.bootstrap5.css" />
 
     
 
@@ -44,7 +49,23 @@
                         </li>
 
                         <!--Autorización-->
-                        @if (User.IsInRole(CNT.Administrador) || User.IsInRole(CNT.Secretaria))
+                        @if (User.IsInRole(CNT.Administrador) )
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Administrar Tablas</a>
+                                <div class="dropdown-menu" bis_skin_checked="1">
+                                    <a class="dropdown-item" asp-area="Admin" asp-controller="Plataformas" asp-action="Index">Plataformas</a>
+                                    <a class="dropdown-item" asp-area="Admin" asp-controller="Cajeros" asp-action="Index">Cajeros</a>
+                                    <a class="dropdown-item" asp-area="Admin" asp-controller="Cajeros" asp-action="IndexSecretarias">Secretarias</a>
+                                    <a class="dropdown-item" asp-area="Admin" asp-controller="RegistrosMovimientos" asp-action="Index">Registro de Movimientos</a>
+                                    @*  <a class="dropdown-item" href="#">Something else here</a>
+                                <div class="dropdown-divider" bis_skin_checked="1"></div>
+                                <a class="dropdown-item" href="#">Separated link</a> *@
+                                </div>
+                            </li>
+                        }
+
+                        @if (User.IsInRole(CNT.Secretaria))
                         {
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Administrar Tablas</a>
@@ -101,9 +122,16 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
 
-    <!--Agregadas para el agreupamiento de las filas de la vista -->
+    <!--Agregadas para el agrupamiento de las filas de la vista -->
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/2.1.7/js/dataTables.js"></script>
+
+    <!--Agregadas para las vistas responsive -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/2.1.7/js/dataTables.bootstrap5.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/responsive/3.0.3/js/responsive.bootstrap5.js"></script>
+
 
 
 
