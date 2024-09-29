@@ -14,9 +14,10 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("ConexionSQL") ?? throw new InvalidOperationException("String de Conexi�n 'ConexionSQL' no encontrada.");
 
 
-//Context para Identity
+////Context para Identity
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+
 
 // Agrego el contexto para las clases a usar
 builder.Services.AddDbContext<CasinoRegistroDbContext>(options =>
@@ -26,15 +27,17 @@ options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentity<IdentityUser,IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultUI();
+    .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultUI().AddDefaultTokenProviders();
 builder.Services.AddControllersWithViews();
+
+
 
 //Agregar contenedor de trabajo al contenedor IoC de inyecci�n de dependencias
 builder.Services.AddScoped<IContenedorTrabajo, ContenedorTrabajo>();
 //builder.Services.AddScoped<IInicializadorBD, InicializadorBD>();
 
 
-////Siembra de datos - Paso 1
+//Siembra de datos - Paso 1
 //builder.Services.AddScoped<IInicializadorBD, InicializadorBD>();
 
 ////agrego para que que tome los datos configurados por defecto en el appsettings.json
@@ -70,7 +73,7 @@ app.UseRequestLocalization("es-AR");
 //CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
 //CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
-//M�todo que ejecuta la siembra de datos
+////Siembra de datos - Paso 2 Metodo que ejecuta la siembra de datos
 //SiembraDatos();
 
 app.UseRouting();
@@ -86,7 +89,7 @@ app.Run();
 
 
 
-//Funcionalidad m�todo SiembraDeDatos();
+//Funcionalidad método SiembraDeDatos();
 //void SiembraDatos()
 //{
 //    using (var scope = app.Services.CreateScope())

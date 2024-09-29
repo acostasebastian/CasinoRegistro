@@ -26,21 +26,23 @@ function cargarDataTable() {
             var rows = api.rows({ page: 'current' }).nodes();
             var last = null;
 
-            api.column(groupColumn, { page: 'current' })
-                .data()
-                .each(function (group, i) {
+            api.column(groupColumn, { page: 'current' }).every(function () {
+
+                this.data().each(function (data, i) {
+                /*.each(function (group, i) {*/
                     if (last !== group) {
                         $(rows)
                             .eq(i)
                             .before(
-                                '<tr class="group"><td colspan="5"> Registros del cajero/a: ' +
+                                '<tr class="group"><td colspan="5" style="background-color:#f9f6f0"> Registros del cajero/a: ' +
                                 group +
-                                '</td></tr>'
+                                '</td></tr>'                                                              
                             );
 
                         last = group;
                     }
                 });
+            });
         },
 
 

@@ -44,8 +44,8 @@ namespace CasinoRegistro.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "El Email es obligatorio")]
+            [EmailAddress(ErrorMessage = "El campo Email no es una dirección de correo electrónico válida.")]
             public string Email { get; set; }
         }
 
@@ -72,8 +72,8 @@ namespace CasinoRegistro.Areas.Identity.Pages.Account
 
                 await _emailSender.SendEmailAsync(
                     Input.Email,
-                    "Reset Password",
-                    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    "Reestablecer contraseña",
+                    $"Por favor, para reestablecer su contraeña haga click en el siguiente link:  <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'</a>.");
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }

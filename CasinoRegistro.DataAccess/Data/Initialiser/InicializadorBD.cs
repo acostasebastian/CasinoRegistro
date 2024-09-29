@@ -1,6 +1,8 @@
 ﻿using CasinoRegistro.Data;
 using CasinoRegistro.Models;
+using CasinoRegistro.Utilities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +33,36 @@ namespace CasinoRegistro.DataAccess.Data.Initialiser
         }
         public void Inicializar()
         {
+            try
+            {
+                //Se verifica si hay migraciones pendientes. Y si las hay, se ejecutan
+                if (_db.Database.GetPendingMigrations().Count() > 0)
+                {
+                    _db.Database.Migrate();
+                }
+
+                if (_userContext.Database.GetPendingMigrations().Count() > 0)
+                {
+                    _userContext.Database.Migrate();
+                }
+
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            //si se encuentra algun rol Administrador, se accede
+            if (_userContext.Roles.Any(ro => ro.Name == CNT.Administrador)) return;
+            
+            //Creacion de roles
+            _roleManager.CreateAsync(new IdentityRole(CNT.Administrador)).GetAwaiter().GetResult();
+            _roleManager.CreateAsync(new IdentityRole(CNT.Secretaria)).GetAwaiter().GetResult();
+            _roleManager.CreateAsync(new IdentityRole(CNT.Cajero)).GetAwaiter().GetResult();
+
+
             //Creación del usuario inicial
             _userManager.CreateAsync(new IdentityUser
             {
@@ -38,9 +70,27 @@ namespace CasinoRegistro.DataAccess.Data.Initialiser
                 Email = "joseandresmontoya@hotmail.com",
                 EmailConfirmed = true,
                 // Nombre = "render2web"
-            }, "Admin123*").GetAwaiter().GetResult();
+            }, "Admin1234.").GetAwaiter().GetResult();
 
-            CajeroUser usuario = _db.Cajero.Where(us => us.Email == "joseandresmontoya@hotmail.com").FirstOrDefault();
+           
+
+            IdentityUser usuario = _userContext.Users.Where(us => us.Email == "joseandresmontoya@hotmail.com").FirstOrDefault();
+           _userManager.AddToRoleAsync(usuario, CNT.Administrador).GetAwaiter().GetResult();
+            
+
+            CajeroUser cajero = new CajeroUser
+            {
+                Email = "joseandresmontoya@hotmail.com",
+                Nombre= "Prueba",
+                Apellido = "xxxx",
+                DNI = "3333",
+                Estado = true,
+                Rol = CNT.Administrador,
+                EsCajero = false
+
+            };
+            _db.Cajero.Add(cajero);
+           
         }
     }
 }
