@@ -38,7 +38,7 @@ builder.Services.AddScoped<IContenedorTrabajo, ContenedorTrabajo>();
 
 
 //Siembra de datos - Paso 1
-//builder.Services.AddScoped<IInicializadorBD, InicializadorBD>();
+builder.Services.AddScoped<IInicializadorBD, InicializadorBD>();
 
 ////agrego para que que tome los datos configurados por defecto en el appsettings.json
 //builder.Configuration.GetSection("Config");
@@ -73,8 +73,8 @@ app.UseRequestLocalization("es-AR");
 //CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
 //CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
-////Siembra de datos - Paso 2 Metodo que ejecuta la siembra de datos
-//SiembraDatos();
+//Siembra de datos - Paso 2 Metodo que ejecuta la siembra de datos
+SiembraDatos();
 
 app.UseRouting();
 
@@ -90,11 +90,11 @@ app.Run();
 
 
 //Funcionalidad método SiembraDeDatos();
-//void SiembraDatos()
-//{
-//    using (var scope = app.Services.CreateScope())
-//    {
-//        var inicializadorBD = scope.ServiceProvider.GetRequiredService<IInicializadorBD>();
-//        inicializadorBD.Inicializar();
-//    }
-//}
+void SiembraDatos()
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var inicializadorBD = scope.ServiceProvider.GetRequiredService<IInicializadorBD>();
+        inicializadorBD.Inicializar();
+    }
+}

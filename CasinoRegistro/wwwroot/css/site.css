@@ -78,3 +78,9 @@ tr.group:hover {
 :root.dark tr.group:hover {
     background-color: rgba(0, 0, 0, 0.75) !important;
 }
+
+
+/*Estilos para el Navbar*/
+.navbar {
+    padding: 10px 0; /*10 arriba y abajo, 0 izquierda derecha*/
+}
