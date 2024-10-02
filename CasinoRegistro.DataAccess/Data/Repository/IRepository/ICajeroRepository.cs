@@ -14,10 +14,7 @@ namespace CasinoRegistro.DataAccess.Data.Repository.IRepository
 
         void UpdateDeuda(int idCajero, decimal nuevaDeuda);
 
-
-        void BloquearCajero(CajeroUser cajeroDesdeBd, Task<Microsoft.AspNetCore.Identity.IdentityUser?> objFromDb);
-        void DesloquearCajero(CajeroUser cajeroDesdeBd, Task<Microsoft.AspNetCore.Identity.IdentityUser?> objFromDb);
-
+        IEnumerable<SelectListItem>? GetListaCajeros();
 
     }
 }

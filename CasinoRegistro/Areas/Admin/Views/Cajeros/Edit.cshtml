@@ -12,10 +12,24 @@
     <!--Se envía el ID del cajero como campo oculto-->
     <input type="hidden" asp-for="CajeroUserVM.Id" />
     <input type="hidden" asp-for="CajeroUserVM.Rol" />
+    <input type="hidden" asp-for="CajeroUserVM.EsCajero" />
+   @*  <input type="hidden" asp-for="IdsPlataformas" /> *@
 
     <div class="row px-2 border">
         <div asp-validation-summary="All" class="text-danger"></div>        
         <div class="col-8 mt-4">
+
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="CajeroUserVM.Id"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="CajeroUserVM.Id" class="form-control" disabled/>
+                </div>
+            </div>
+
+            <br />
+
             <div class="form-group row">
                 <div class="col-4">
                     <label asp-for="CajeroUserVM.Email"></label>
@@ -104,6 +118,24 @@
             </div>
 
             <br /> *@
+
+
+                <div class="form-group row">
+                    <div class="col-4">
+                        <label for="Cajero">Plataformas</label>
+                    </div>
+                    <div class="col-8">
+
+                        <select asp-for="IdsPlataformas" id="drop" class="form-control" multiple>
+                            @foreach (var item in Model.ListaPlataformas)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </select>
+
+                    </div>
+                </div>
+                <br />
             }
             <div class="form-group row">
 

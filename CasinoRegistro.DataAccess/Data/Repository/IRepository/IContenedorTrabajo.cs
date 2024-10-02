@@ -14,6 +14,8 @@ namespace CasinoRegistro.DataAccess.Data.Repository.IRepository
         ICajeroRepository Cajero { get; }
         IRegistroMovimientoRepository RegistroMovimiento { get; }
 
+        ICajeroPlataformaRepository CajeroPlataforma { get; }
+
         void Save();
     }
 }

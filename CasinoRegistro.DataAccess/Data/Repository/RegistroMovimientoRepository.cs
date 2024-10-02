@@ -17,17 +17,7 @@ namespace CasinoRegistro.DataAccess.Data.Repository
         public RegistroMovimientoRepository(CasinoRegistroDbContext db) : base(db)
         {
             _db = db;
-        }
-
-        public IEnumerable<SelectListItem>? GetListaCajeros()
-        {
-            return _db.Cajero.Where(c => c.Rol == "Cajero").Where(c => c.Estado == true).Select(i => new SelectListItem()
-            {
-                Text = i.NombreCompleto,
-                Value = i.Id.ToString(),
-
-            });
-        }
+        }   
 
 
 

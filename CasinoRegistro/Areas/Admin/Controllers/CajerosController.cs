@@ -63,7 +63,6 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         // GET: Admin/Cajeros >> vista de Secretarias
         public async Task<IActionResult> IndexSecretarias()
         {
-
             return View();
         }
 
@@ -72,10 +71,14 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         // GET: Admin/Cajeros/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
             CajeroViewModel cajeroViewModel = new CajeroViewModel()
             {
-                CajeroUserVM = new CasinoRegistro.Models.CajeroUser(),
-                // ListaPlataformas = _contenedorTrabajo.Plataforma.GetListaPlataformas()
+                CajeroUserVM = new CasinoRegistro.Models.CajeroUser()                              
             };
 
             if (id != null)
@@ -88,6 +91,22 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                     return NotFound();
 
                 }
+
+                ////busco si el cajero tiene plataformas asociadas. Y si las tiene, las traigo en una lista 
+                var cajeroPlataformasPorCajero = _contenedorTrabajo.CajeroPlataforma.GetAll( cp => cp.CajeroUserId == cajeroViewModel.CajeroUserVM.Id, includeProperties:"Plataforma");
+                
+                
+                if (cajeroPlataformasPorCajero != null)
+                { 
+
+                    //En vez de IEnumerable<SelectListItem> también funciona con List<SelectListItem>
+                    //ACA BUSCO LOS DATOS DE LAS PLATAFORMAS QUE CORRESPONDAN Y LAS CONVIERTO A SelectListItem
+                    IEnumerable<SelectListItem> plat = _contenedorTrabajo.CajeroPlataforma.GetListaPlataformasCajeros(cajeroPlataformasPorCajero);
+           
+                //Paso a la vista la lista de plataformas a través de un ViewBag
+                ViewBag.plataformas = plat;
+                }
+
 
                 if (cajeroViewModel.CajeroUserVM.EsCajero == false)
                 {
@@ -102,8 +121,6 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                 }
             }           
 
-       
-
             return View(cajeroViewModel);
 
         }
@@ -112,14 +129,15 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         // GET: Admin/Cajeros/Create >> Cajeros
         [HttpGet]
         public IActionResult Create()
-        {      
+        {
             CajeroViewModel cajeroViewModel = new CajeroViewModel()
             {
                 CajeroUserVM = new CasinoRegistro.Models.CajeroUser(),
-                
-                // ListaPlataformas = _contenedorTrabajo.Plataforma.GetListaPlataformas()
-            };
 
+                ListaPlataformas = _contenedorTrabajo.Plataforma.GetListaPlataformas(),           
+
+            };
+       
             cajeroViewModel.CajeroUserVM.EsCajero = true;
 
             ViewBag.Titulo = "Crear Cajero";
@@ -250,18 +268,69 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                         //mensaje.From.Add(new MailboxAddress("Test Envio mail", "info@gmail.com")); // Test Envio mail: Nombre con el que aparece ademas del correo
                         mensaje.From.Add(new MailboxAddress(_config["EmailSettings:SenderName"], _config["EmailSettings:SenderEmail"]));
                         mensaje.To.Add(new MailboxAddress("Test Enviado", cajeroVM.CajeroUserVM.Email));
-                        mensaje.Subject = "Creación de cajero";
-                        mensaje.Body = new TextPart("plain")
+
+                        if (cajeroVM.CajeroUserVM.EsCajero)
                         {
-                            Text = "Bienvenido. Ha sido dado de alta como cajero en el Equipo Juampi.\r\n" +
-                            "Su correo y credenciales son las siguientes. Se recomienda cambiar la contraseña desde su perfil luego de iniciar sesión. \r\n \r\n" +
-                            "Correo: " + cajeroVM.CajeroUserVM.Email + "\r\n"+
-                            "Contraseña: Admin1234."
+                            mensaje.Subject = "Creación de cajero";
+
+                            mensaje.Body = new TextPart("plain")
+                            {
+                                Text = "Bienvenido. Ha sido dado de alta como cajero en el Equipo Juampi.\r\n" +
+                               "Su correo y credenciales son las siguientes. Se recomienda cambiar la contraseña desde su perfil luego de iniciar sesión. \r\n \r\n" +
+                               "Correo: " + cajeroVM.CajeroUserVM.Email + "\r\n" +
+                               "Contraseña: Admin1234."
 
 
-                           
-                        };
 
+                            };
+                        }
+
+                        else
+                        {
+                            mensaje.Subject = "Creación de secretaria";
+
+                            mensaje.Body = new TextPart("plain")
+                            {
+                                Text = "Bienvenido. Ha sido dado de alta como secretaria en el Equipo Juampi.\r\n" +
+                               "Su correo y credenciales son las siguientes. Se recomienda cambiar la contraseña desde su perfil luego de iniciar sesión. \r\n \r\n" +
+                               "Correo: " + cajeroVM.CajeroUserVM.Email + "\r\n" +
+                               "Contraseña: Admin1234."
+
+                            };
+                        }                                                                
+                       
+
+                        #endregion
+
+
+                        _contenedorTrabajo.Save();
+
+
+
+                        #region Asignacion tabla Cajero-Plataforma
+                        if (cajeroVM.CajeroUserVM.EsCajero && cajeroVM.IdsPlataformas != null)
+                        {
+                            //Se realiza en este punto porque es cuando se asigna el Id del Cajero                           
+
+                            for (int i = 0; i < cajeroVM.IdsPlataformas.Count(); i++)
+                            {
+                                CajeroPlataforma cajeroPlataforma = new CajeroPlataforma();
+                                //cajeroPlataforma.Id = 0;
+
+                                cajeroPlataforma.CajeroUserId = cajeroVM.CajeroUserVM.Id;
+                                cajeroPlataforma.PlataformaId = cajeroVM.IdsPlataformas[i];
+
+                                _contenedorTrabajo.CajeroPlataforma.Add(cajeroPlataforma);
+                                _contenedorTrabajo.Save();
+                            }         
+                        }
+
+                        #endregion
+
+                        
+                        transaction.Commit();
+
+                        //envio del correo después del commit, para que no se mande antes de la creacion del correo
                         using (var cliente = new SmtpClient())
                         {
                             //cliente.Connect("smtp.gmail.com", 465);
@@ -272,14 +341,6 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                             cliente.Disconnect(true);
 
                         }
-
-                        #endregion
-
-
-                        _contenedorTrabajo.Save();
-
-                     
-                        transaction.Commit();
 
 
                         if (cajeroVM.CajeroUserVM.EsCajero == false)
@@ -321,13 +382,28 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                             ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.Message);
                         }
 
+                        //para no perder los datos de la lista de plataformas
+                        cajeroVM.ListaPlataformas = _contenedorTrabajo.Plataforma.GetListaPlataformas();
+
                         return View(cajeroVM);
                     }
                 }
             }
 
-            //para no perder los datos de la lista de plataformas
-            //cajeroVM.ListaPlataformas = _contenedorTrabajo.Plataforma.GetListaPlataformas();
+
+            if (cajeroVM.CajeroUserVM.EsCajero)
+            {
+                //para no perder los datos de la lista de plataformas
+                cajeroVM.ListaPlataformas = _contenedorTrabajo.Plataforma.GetListaPlataformas();
+            }
+           
+   
+
+
+           
+             
+           
+       
 
             return View(cajeroVM);
         }
@@ -340,7 +416,9 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             CajeroViewModel cajeroViewModel = new CajeroViewModel()
             {
                 CajeroUserVM = new CasinoRegistro.Models.CajeroUser(),
-                // ListaPlataformas = _contenedorTrabajo.Plataforma.GetListaPlataformas()
+                ListaPlataformas = _contenedorTrabajo.Plataforma.GetListaPlataformas(),
+                IdsPlataformas = new List<int>()
+
             };
 
             if (id != null)
@@ -352,7 +430,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                 if (rol == CNT.Secretaria && cajeroViewModel.CajeroUserVM.EsCajero == false)
                 {
-                    return View("AccesoDenegado");// PARA QUE UNA SECRETARIA PUEDA ACCEDER A EDITARLA DESDE LA URL
+                    return View("AccesoDenegado");// PARA QUE UNA SECRETARIA PUEDA ACCEDER A EDITARLA DESDE LA URL, DESPUES DE ESTAR EDITANDO UN CAJERO
                 }
 
                 if (cajeroViewModel.CajeroUserVM == null)
@@ -360,6 +438,29 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                     return NotFound();
 
                 }
+
+
+                //busco si el cajero tiene plataformas asociadas. Y si las tiene, las traigo en una lista 
+                var cajeroPlataformasPorCajero = _contenedorTrabajo.CajeroPlataforma.GetAll(cp => cp.CajeroUserId == cajeroViewModel.CajeroUserVM.Id, includeProperties: "Plataforma");
+
+
+
+                if (cajeroPlataformasPorCajero.Count() > 0)
+                {
+
+
+                    foreach (var item in cajeroPlataformasPorCajero)
+                    {
+                        cajeroViewModel.IdsPlataformas.Add(item.PlataformaId);
+                    }
+
+                }
+
+                ////SI NO TIENE PLATAFORMAS SELECCIONADAS, LE PASO TODAS
+                //else
+                //{
+                //    ViewBag.plataformas = cajeroViewModel.ListaPlataformas;
+                //}
 
                 cajeroViewModel.CajeroUserVM.EsCajero = true;
 
@@ -378,8 +479,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         {
             CajeroViewModel cajeroViewModel = new CajeroViewModel()
             {
-                CajeroUserVM = new CasinoRegistro.Models.CajeroUser(),
-                // ListaPlataformas = _contenedorTrabajo.Plataforma.GetListaPlataformas()
+                CajeroUserVM = new CasinoRegistro.Models.CajeroUser(),                
             };
 
             if (id != null)
@@ -391,8 +491,6 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                     return NotFound();
 
                 }
-
-
 
                 cajeroViewModel.CajeroUserVM.EsCajero = false;
 
@@ -417,8 +515,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                 {
                     try
                     {
-
-
+                        #region Imagen
                         string rutaPrincipal = _hostingEnvironment.WebRootPath;
                         var archivos = HttpContext.Request.Form.Files;
 
@@ -462,9 +559,10 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                             //Aquí sería cuando la imagen ya existe y se conserva
                             cajeroVM.CajeroUserVM.UrlImagen = cajeroDesdeBd.UrlImagen;
                         }
+                        #endregion
 
-                        
 
+                        #region Aspnet Users y Rol
                         var user = await _userManager.FindByNameAsync(cajeroDesdeBd.Email);
 
                         //EDITO EL USUARIO EN ASPNETUSER
@@ -513,9 +611,52 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
 
                         }
+                        #endregion
 
 
                         _contenedorTrabajo.Cajero.Update(cajeroVM.CajeroUserVM);
+
+
+                        #region tabla Cajero-Plataforma
+
+
+                        //busco si el cajero tiene plataformas asociadas. Y si las tiene, las traigo en una lista para luego eliminarlas y crear las nuevas seleccionadas
+                        var cajeroPlataformasPorCajero = _contenedorTrabajo.CajeroPlataforma.GetAll(cp => cp.CajeroUserId == cajeroVM.CajeroUserVM.Id, includeProperties: "Plataforma");
+
+
+                        if (cajeroPlataformasPorCajero.Count() > 0)
+                        {
+
+                            foreach (var item in cajeroPlataformasPorCajero)
+                            {
+                                var objFromDb = _contenedorTrabajo.CajeroPlataforma.Get(item.Id);
+
+                                _contenedorTrabajo.CajeroPlataforma.Remove(objFromDb);
+                                _contenedorTrabajo.Save();
+                            }
+
+                         
+                        }
+
+                        if (cajeroVM.CajeroUserVM.EsCajero && cajeroVM.IdsPlataformas != null)
+                        {
+                            //Se realiza en este punto porque es cuando se asigna el Id del Cajero                           
+
+                            for (int i = 0; i < cajeroVM.IdsPlataformas.Count(); i++)
+                            {
+                                CajeroPlataforma cajeroPlataforma = new CajeroPlataforma();
+                                //cajeroPlataforma.Id = 0;
+
+                                cajeroPlataforma.CajeroUserId = cajeroVM.CajeroUserVM.Id;
+                                cajeroPlataforma.PlataformaId = cajeroVM.IdsPlataformas[i];
+
+                                _contenedorTrabajo.CajeroPlataforma.Add(cajeroPlataforma);
+                                _contenedorTrabajo.Save();
+                            }
+                        }
+
+                        #endregion
+
                         _contenedorTrabajo.Save();
 
                         transaction.Commit();
@@ -553,7 +694,8 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                             ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.Message);
                         }
 
-
+                        //para no perder los datos de la lista de plataformas
+                        cajeroVM.ListaPlataformas = _contenedorTrabajo.Plataforma.GetListaPlataformas();
                         return View(cajeroVM);
                     }
                 }
@@ -561,7 +703,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
             }
             //para no perder los datos de la lista de plataformas
-            //cajeroVM.ListaPlataformas = _contenedorTrabajo.Plataforma.GetListaPlataformas();
+            cajeroVM.ListaPlataformas = _contenedorTrabajo.Plataforma.GetListaPlataformas();
 
             return View(cajeroVM);
         }

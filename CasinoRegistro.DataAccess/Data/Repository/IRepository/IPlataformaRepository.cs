@@ -12,6 +12,6 @@ namespace CasinoRegistro.DataAccess.Data.Repository.IRepository
     {
         void Update(Plataforma plataforma);
 
-       // IEnumerable<SelectListItem> GetListaPlataformas();
+        IEnumerable<SelectListItem>? GetListaPlataformas();
     }
 }

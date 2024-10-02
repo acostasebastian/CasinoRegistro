@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = ViewBag.Titulo;
+    List<SelectListItem> items = (List<SelectListItem>)ViewBag.plataformas;
 }
 
 <br />
@@ -10,12 +11,24 @@
 <h3 class="text-center">@ViewBag.Encabezado</h3>
 <form asp-action="Edit" method="POST" enctype="multipart/form-data">
     <!--Se envía el ID del artículo como campo oculto-->
-    <input type="hidden" asp-for="CajeroUserVM.Id" />
+    @* <input type="hidden" asp-for="CajeroUserVM.Id" /> *@
     <input type="hidden" asp-for="CajeroUserVM.EsCajero" />
 
     <div class="row px-2 border">
         <div asp-validation-summary="All" class="text-danger"></div>
         <div class="col-8 mt-4">
+
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="CajeroUserVM.Id"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="CajeroUserVM.Id" class="form-control" disabled />
+                </div>
+            </div>
+
+            <br />
+
             <div class="form-group row">
                 <div class="col-4">
                     <label asp-for="CajeroUserVM.Email"></label>
@@ -71,30 +84,53 @@
 
             <br />
 
+            
+            @if (Model.CajeroUserVM.EsCajero)
+            {
+                <div class="form-group row">
+                    <div class="col-4">
+                        <label asp-for="CajeroUserVM.FichasCargar"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="CajeroUserVM.FichasCargar" class="form-control" disabled />
+                    </div>
+                </div>
+
+                <br />
+
+                @*  POR EL MOMENTO NO SE USA
             <div class="form-group row">
-                <div class="col-4">
-                    <label asp-for="CajeroUserVM.FichasCargar"></label>
-                </div>
-                <div class="col-8">
-                    <input asp-for="CajeroUserVM.FichasCargar" class="form-control" disabled />                    
-                </div>
+            <div class="col-4">
+            <label asp-for="CajeroUserVM.PorcentajeComision"></label>
             </div>
-
-            <br />
-
-            @*  POR EL MOMENTO NO SE USA
-               <div class="form-group row">
-                <div class="col-4">
-                    <label asp-for="CajeroUserVM.PorcentajeComision"></label>
-                </div>
-                <div class="col-8">
-                    <input asp-for="CajeroUserVM.PorcentajeComision" class="form-control" disabled />                    
-                </div>
+            <div class="col-8">
+            <input asp-for="CajeroUserVM.PorcentajeComision" class="form-control" disabled />
+            </div>
             </div>
 
             <br /> *@
 
-            <div class="form-group row">
+                <div class="form-group row">
+                    <div class="col-4">
+                        <label for="Cajero">Plataformas</label>
+                    </div>
+                    <div class="col-8">
+                        <select asp-for="IdsPlataformas" id="drop" class="form-control" multiple disabled>
+                            @foreach (var item in items)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <br />
+                
+            }
+
+       
+
+    @*         <div class="form-group row">
                 <div class="col-4">
                     <label asp-for="CajeroUserVM.Rol"></label>
                 </div>
@@ -103,8 +139,9 @@
                 </div>
             </div>
 
-            <br />
+            <br /> *@
 
+     
 
 
 

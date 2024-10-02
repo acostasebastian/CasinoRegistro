@@ -26,13 +26,14 @@ namespace CasinoRegistro.DataAccess.Data.Repository
 
         }
 
-        //public IEnumerable<SelectListItem> GetListaPlataformas()
-        //{
-        //    return _db.Plataforma.Select(p => new SelectListItem()
-        //    {
-        //        Text = p.URL,
-        //        Value = p.Id.ToString()
-        //    });
-        //}
+        public IEnumerable<SelectListItem>? GetListaPlataformas()
+        {
+            return _db.Plataforma.Select(i => new SelectListItem()
+            {
+                Text = i.URL,
+                Value = i.Id.ToString(),
+
+            });
+        }
     }
 }

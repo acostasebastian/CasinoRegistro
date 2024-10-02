@@ -69,7 +69,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                 EsIngresoFichas =true,
                 Fecha = DateTime.Now,
                
-                ListaCajeros = _contenedorTrabajo.RegistroMovimiento.GetListaCajeros()
+                ListaCajeros = _contenedorTrabajo.Cajero.GetListaCajeros()
 
             };
             var currentDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
@@ -93,7 +93,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                 Fecha = DateTime.Now,
                
 
-                ListaCajeros = _contenedorTrabajo.RegistroMovimiento.GetListaCajeros()
+                ListaCajeros = _contenedorTrabajo.Cajero.GetListaCajeros()
 
             };
             var currentDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
@@ -130,15 +130,13 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [Authorize(Roles = "Administrador,Secretaria")]
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create([Bind("Id,CajeroId,FechaCreacion,FichasCargadas,PesosEntregados,PesosDevueltos,Comision,DeudaPesosActual")] RegistroMovimiento registroMovimiento)
+        [ValidateAntiForgeryToken]     
         public async Task<IActionResult> Create(RegistroMovimientoViewModel registroMovimientoVM)
         {
             var currentDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
 
             if (ModelState.IsValid)
-            {
-              
+            {              
 
                 if (validarDatos(registroMovimientoVM) == false)
                 {                 
@@ -209,7 +207,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                         {
                             transaction.Rollback();
                             ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.Message);
-                            registroMovimientoVM.ListaCajeros = _contenedorTrabajo.RegistroMovimiento.GetListaCajeros();
+                            registroMovimientoVM.ListaCajeros = _contenedorTrabajo.Cajero.GetListaCajeros();
 
                             currentDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
                             ViewBag.CurrentDateTime = currentDateTime;
@@ -223,7 +221,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
             currentDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
             ViewBag.CurrentDateTime = currentDateTime;
-            registroMovimientoVM.ListaCajeros = _contenedorTrabajo.RegistroMovimiento.GetListaCajeros();
+            registroMovimientoVM.ListaCajeros = _contenedorTrabajo.Cajero.GetListaCajeros();
             return View(registroMovimientoVM);
 
         }
@@ -249,7 +247,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                 }
 
                 registroViewModel = ToViewModel(registroMovimiento);
-                registroViewModel.ListaCajeros = _contenedorTrabajo.RegistroMovimiento.GetListaCajeros();  
+                registroViewModel.ListaCajeros = _contenedorTrabajo.Cajero.GetListaCajeros();  
                  
             }
 
@@ -327,7 +325,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                             
                     }
-                    registroMovimientoVM.ListaCajeros = _contenedorTrabajo.RegistroMovimiento.GetListaCajeros();
+                    registroMovimientoVM.ListaCajeros = _contenedorTrabajo.Cajero.GetListaCajeros();
 
                     ViewBag.CurrentDateTime = registroMovimientoVM.Fecha.ToString("yyyy-MM-dd HH:mm");
                     return View(registroMovimientoVM);
@@ -337,7 +335,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                
                
             }
-            registroMovimientoVM.ListaCajeros = _contenedorTrabajo.RegistroMovimiento.GetListaCajeros();
+            registroMovimientoVM.ListaCajeros = _contenedorTrabajo.Cajero.GetListaCajeros();
             return View(registroMovimientoVM);
         }
 

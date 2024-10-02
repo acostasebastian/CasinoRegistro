@@ -1,5 +1,6 @@
 ﻿using CasinoRegistro.Data;
 using CasinoRegistro.DataAccess.Data.Repository.IRepository;
+using CasinoRegistro.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace CasinoRegistro.DataAccess.Data.Repository
             Plataforma = new PlataformaRepository(_db);
             Cajero = new CajeroRepository(_db);
             RegistroMovimiento = new RegistroMovimientoRepository(_db);
+            CajeroPlataforma = new CajeroPlataformaRepository(_db); 
 
         }
 
@@ -25,6 +27,8 @@ namespace CasinoRegistro.DataAccess.Data.Repository
         public ICajeroRepository Cajero { get; private set; }
 
         public IRegistroMovimientoRepository RegistroMovimiento { get; private set; }
+
+        public ICajeroPlataformaRepository CajeroPlataforma { get; private set; }
 
         public void Dispose()
         {

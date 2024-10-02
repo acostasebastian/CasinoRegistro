@@ -9,21 +9,6 @@ namespace CasinoRegistro.DataAccess.Data.Repository.IRepository
 {
     public interface IRepository<T> where T : class
     {
-       // Task<T> Get(int id);
-
-        //Task<IEnumerable<T>> GetAll(
-        //      Expression<Func<T, bool>>? filter = null,
-        //      Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-        //      string? includeProperties = null
-        //  );
-
-
-
-        //Task<T> GetFirstOrDefault(
-        //     Expression<Func<T, bool>>? filter = null,
-        //     string? includeProperties = null
-        //);
-
          T Get(int id);
 
         IEnumerable<T> GetAll(

@@ -20,5 +20,7 @@ namespace CasinoRegistro.Models
 
         [Display(Name = "Descripción")]
         public string? Descripcion { get; set; }
+
+        List<CajeroPlataforma> CajerosPlataformas { get; set; }
     }
 }

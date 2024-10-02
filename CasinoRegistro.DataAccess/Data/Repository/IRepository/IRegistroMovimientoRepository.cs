@@ -10,7 +10,7 @@ namespace CasinoRegistro.DataAccess.Data.Repository.IRepository
 {
     public interface IRegistroMovimientoRepository : IRepository<RegistroMovimiento>
     {
-        IEnumerable<SelectListItem>? GetListaCajeros();
+        
 
         void Update(RegistroMovimiento registroMovimiento);
     }

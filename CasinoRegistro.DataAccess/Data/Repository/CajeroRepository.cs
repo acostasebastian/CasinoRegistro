@@ -3,6 +3,7 @@ using CasinoRegistro.DataAccess.Data.Repository.IRepository;
 using CasinoRegistro.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,34 +17,21 @@ namespace CasinoRegistro.DataAccess.Data.Repository
         private readonly CasinoRegistroDbContext _db;
        // private readonly ApplicationDbContext _dbAplication;
 
-        public CajeroRepository(CasinoRegistroDbContext db
-            //, ApplicationDbContext dbAplication
-            ) : base(db)
+        public CajeroRepository(CasinoRegistroDbContext db) : base(db)
         {
-            _db = db;
-         //   _dbAplication = dbAplication;
+            _db = db;     
         }
 
-
-        public void DesloquearCajero(CajeroUser cajeroDesdeBd, Task<IdentityUser?> objFromDb)
+        public IEnumerable<SelectListItem>? GetListaCajeros()
         {
+            return _db.Cajero.Where(c => c.Rol == "Cajero").Where(c => c.Estado == true).Select(i => new SelectListItem()
+            {
+                Text = i.NombreCompleto,
+                Value = i.Id.ToString(),
 
-            //le agrego al campo de la tabla AspUseres la fecha actual
-            //haciendo que el cajero quede desbloqueado
-            objFromDb.Result.LockoutEnd = null;
-            cajeroDesdeBd.Estado = true;
-
+            });
         }
-        public void BloquearCajero(CajeroUser cajeroDesdeBd,Task<IdentityUser?> objFromDb)
-        {
 
-            //le agrego al campo de la tabla AspUseres una fecha hasta la cual estará bloqueado
-            //haciendo que el cajero quede bloqueado
-            objFromDb.Result.LockoutEnd = DateTime.Now.AddYears(1000);
-
-            cajeroDesdeBd.Estado = false;
-
-        }
 
         public void Update(CajeroUser cajero)
         {

@@ -65,5 +65,7 @@ namespace CasinoRegistro.Models
         {
             get { return Nombre + " " + Apellido; }
         }
+
+        List<CajeroPlataforma> CajerosPlataformas { get; set; }
     }
 }
