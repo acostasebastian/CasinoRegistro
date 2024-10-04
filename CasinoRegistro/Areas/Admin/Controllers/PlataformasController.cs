@@ -145,13 +145,56 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             }
             return View(plataforma);
         }
-      
+
 
         #region Llamadas a la API
-        [HttpGet]
+
+        public string draw = "";
+        public string start = "";
+        public string length = "";
+        public string sortColum = "";
+        public string sortColumnDir = "";
+        public string searchValue = "";
+        public int pageSize, skip, recordsTotal;
+
+        [HttpPost]
         public IActionResult GetAll()
         {
-            return Json(new { data = _contenedorTrabajo.Plataforma.GetAll() });
+
+            //logistica datatable           
+            var draw = Request.Form["draw"].FirstOrDefault();
+            var start = Request.Form["start"].FirstOrDefault();
+            var length = Request.Form["length"].FirstOrDefault();
+            var sortColum = Request.Form["columns[" + Request.Form["order[0][column]"].FirstOrDefault() + "][name]"].FirstOrDefault();
+            var sortColumnDir = Request.Form["order[0][dir]"].FirstOrDefault();
+            var searchValue = Request.Form["search[value]"].FirstOrDefault();
+
+            pageSize = length != null ? Convert.ToInt32(length) : 0;
+            skip = start != null ? Convert.ToInt32(start) : 0;
+            recordsTotal = 0;
+
+            IEnumerable<Plataforma>? listaPlataformas;
+
+
+            if (searchValue != "")
+            {
+                listaPlataformas = _contenedorTrabajo.Plataforma.GetAll(p => p.URL.Contains(searchValue) || p.Descripcion.Contains(searchValue));
+
+            }
+            else
+            {
+                listaPlataformas = _contenedorTrabajo.Plataforma.GetAll();
+            };
+
+
+            recordsTotal = listaPlataformas.Count();
+
+            listaPlataformas = listaPlataformas.Skip(skip).Take(pageSize).ToList();
+
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = listaPlataformas });
+
+
+            // return Json(new { data = _contenedorTrabajo.Plataforma.GetAll() });
         }
 
 

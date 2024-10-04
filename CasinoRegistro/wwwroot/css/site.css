@@ -25,6 +25,11 @@ a {
     font-weight: bold !important;
 }
 
+tr.odd td:first-child,
+tr.even td:first-child {
+    padding-left: 4em;
+}
+
 .toast-area {
     position: fixed;
     right: 0;

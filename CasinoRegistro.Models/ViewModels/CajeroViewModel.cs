@@ -8,14 +8,11 @@ using System.Web;
 
 namespace CasinoRegistro.Models.ViewModels
 {
-    public class CajeroViewModel // : Plataforma
+    public class CajeroViewModel 
     {
         public CajeroUser CajeroUserVM { get; set; }
 
-     //    public CajeroPlataforma CajeroPlataformaVM { get; set; }
-       // public int PlataformaVMId { get; set; }
-
-        //public int[] Ids { get; set; }
+    
         public List<int> IdsPlataformas { get; set; }
 
         public IEnumerable<SelectListItem>? ListaPlataformas { get; set; }

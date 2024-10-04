@@ -8,7 +8,7 @@ $(document).ready(function () {
 function cargarDataTable() {
 
 
-    var groupColumn = 0;   
+    var groupColumn = 0;
 
     dataTable = $("#tblRegistros").DataTable({
         "ajax": {
@@ -22,59 +22,38 @@ function cargarDataTable() {
         "filter": true,
         "data": null,
         "responsive": true,
+
+        columnDefs: [{ visible: false, targets: groupColumn }],
+        order: [[groupColumn, 'asc']],
         displayLength: 25,
-        //columnDefs: [{ visible: false, targets: groupColumn }],
-        //order: [[groupColumn, 'asc']],
 
-        order: [
-                [0, 'asc'],
-                [1, 'asc']            
-               ],
-        rowGroup: {
-                dataSrc: ['cajeroUser.nombreCompleto', 'fechaCreacion']
-                },
-        columnDefs: [
-                {
-                    targets: [0, 1],
-                    visible: false
-                }
-            ],
+        drawCallback: function (settings) {
+            var api = this.api();
+            var rows = api.rows({ page: 'current' }).nodes();
+            var last = null;
 
-  
+            api.column(groupColumn, { page: 'current' })
+                .data()
+                .each(function (group, i) {
+                    /*.each(function (group, i) {*/
+                    if (last !== group) {
+                        $(rows)
+                            .eq(i)
+                            .before(
+                                '<tr class="group"><td colspan="5" style="background-color:#f9f6f0"> Registros del cajero/a: ' +
+                                group +
+                                '</td></tr>'
+                            );
 
-        //drawCallback: function (settings) {
-        //    var api = this.api();
-        //    var rows = api.rows({ page: 'current' }).nodes();
-        //    var last = null;
-
-        //    api.column(groupColumn, { page: 'current' })
-        //        .data()
-        //        .each(function (group, i) {
-        //        /*.each(function (group, i) {*/
-        //            if (last !== group) {
-        //                $(rows)
-        //                    .eq(i)
-        //                    .before(
-        //                        '<tr class="group"><td colspan="5" style="background-color:#f9f6f0"> Registros del cajero/a: ' +
-        //                        group +
-        //                        '</td></tr>'
-        //                    );
-
-        //                last = group;
-        //            }
-        //        });
-        //},
-
-        //rowGroup: {
-        //    dataSrc: [0,1]
-        //},
+                        last = group;
+                    }
+                });
+        },
 
 
         "columns": [
-            { "data": "cajeroUser.nombreCompleto", "width": "30%" },      
+            { "data": "cajeroUser.nombreCompleto", "width": "30%" },
             { "data": "fechaCreacion", "width": "40%" },
-            //{ "data": "cajeroUser.nombreCompleto", "autowidth": true },
-            //{ "data": "fechaCreacion", "autowidth": true },
             {
                 "data": "esIngresoFichas",
                 "render": function (data, type, row) {
@@ -94,13 +73,12 @@ function cargarDataTable() {
                 </div>`
                 },
                 "width": "10%"
-               /* "autowidth": true */
-            },        
-         
+            },
 
 
 
-            
+
+
 
 
 
@@ -142,7 +120,7 @@ function cargarDataTable() {
                           </div>
                          `;
                 },
-                "width": "40%"             
+                "width": "40%"
             }
         ],
         "language": {
@@ -165,20 +143,20 @@ function cargarDataTable() {
                 "previous": "Anterior"
             }
         },
-    
+
         "width": "100%"
     });
 
     // Order by the grouping
-    //$('#tblRegistros tbody').on('click', 'tr.group', function () {
-    //    var currentOrder = table.order()[0];
-    //    if (currentOrder[0] === groupColumn && currentOrder[1] === 'asc') {
-    //        table.order([groupColumn, 'desc']).draw();
-    //    }
-    //    else {
-    //        table.order([groupColumn, 'asc']).draw();
-    //    }
-    //});
+    $('#tblRegistros tbody').on('click', 'tr.group', function () {
+        var currentOrder = table.order()[0];
+        if (currentOrder[0] === groupColumn && currentOrder[1] === 'asc') {
+            table.order([groupColumn, 'desc']).draw();
+        }
+        else {
+            table.order([groupColumn, 'asc']).draw();
+        }
+    });
 }
 
 function Delete(url) { /*ESTE METODO ES EL QUE SE LLAMA DESDE EL BOTON DE BORRAR DEL DATATABLE (QUE ESTÁ MÁS ARRIBA)*/

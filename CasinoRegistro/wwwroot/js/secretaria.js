@@ -8,18 +8,24 @@ $(document).ready(function () {
 function cargarDataTable() {
     dataTable = $("#tblSecretarias").DataTable({
         "ajax": {
-            "url": "/admin/cajeros/GetAllSecretaria",
-            "type": "GET",
+            "url": "/admin/cajeros/GetAllSecretaria",          
+            "type": "POST",
             "datatype": "json"
 
         },
+        "processing": true,
+        "serverSide": true,
+        "pageLength": 10,
+        "filter": true,
+        "data": null,
+        "responsive": true,
 
-
-        "columns": [
-            { "data": "nombre", "width": "15%" },
-            { "data": "apellido", "width": "15%" },
-            { "data": "email", "width": "15%" },            
-
+        "columns": [       
+            { "data": "id", "autoWidth": true },
+            { "data": "nombre", "autoWidth": true },
+            { "data": "apellido", "autoWidth": true },
+            { "data": "email", "autoWidth": true },
+          
             {
                 "data": "id",
                 "render": function (data, type, row) {
@@ -42,19 +48,17 @@ function cargarDataTable() {
                                 <i class="fa-solid fa-circle-info"></i> Detalles
                                 </a>
                                 &nbsp;
-                                <a href="/Admin/Cajeros/EditSecretaria/${data}" class="btn btn-success text-white" style="cursor:pointer; width:140px;">
+                                <a href="/Admin/Cajeros/Edit/${data}" class="btn btn-success text-white" style="cursor:pointer; width:140px;">
                                 <i class="far fa-edit"></i> Editar
                                 </a>
                                 &nbsp;
                                 ${botonAccion}
                             </div>`;
-                },
-                "width": "40%",
+                },                
+                "autoWidth": true
             }
         ],
         "language": {
-            /*"url": "//cdn.datatables.net/plug-ins/2.1.7/i18n/es-AR.json",*/
-            
             "decimal": "",
             "emptyTable": "No hay registros",
             "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
@@ -74,10 +78,10 @@ function cargarDataTable() {
                 "previous": "Anterior"
             }
         },
-        responsive: true,
         "width": "100%"
     });
 }
+
 
 function AccionBloqueo(url) {
 

@@ -23,59 +23,41 @@ function cargarDataTable() {
         "filter": true,
         "data": null,
         "responsive": true,
+
+        columnDefs: [{ visible: false, targets: groupColumn }],
+        order: [[groupColumn, 'asc']],
         displayLength: 25,
 
-        //columnDefs: [{ visible: false, targets: groupColumn }],
-        //order: [[groupColumn, 'asc']],
+        drawCallback: function (settings) {
+            var api = this.api();
+            var rows = api.rows({ page: 'current' }).nodes();
+            var last = null;
 
 
-        order: [
-            [0, 'asc'],
-            [1, 'asc']
-        ],
-        rowGroup: {
-            dataSrc: ['esIngresoFichas', 'fechaCreacion']
-           /* dataSrc: ['fechaCreacion']*/
+            //SUPUESTAMENTE, DESCOMENTADO ESTE PEDAZO Y REEEMPLAZANDOLO POR EL OTRO FUNCIONA AGRUPAR POR OTRA COLUMNAS.. PERO NO ANDA, ME DA ERROR.
+            //ME PARECE QUE FALTA ALGUNA LLAVE O PARENTESIS, PERO NO LOGRO DARME CUENTA DONDE
+
+            //segun los comentarios de esto >>> https://datatables.net/examples/advanced_init/row_grouping.html
+
+            //api.columns(groupColumn, { page: 'current' }).every(function () {
+            //        this.data().each(function (group, i) {
+            api.columns(groupColumn, { page: 'current' }).every(function () {
+                this.data().each(function (data, i) {
+                    var group = data ? 'Fichas' : 'Dinero';
+
+                    if (last !== group) {
+                        $(rows)
+                            .eq(i)
+                            .before(
+                                '<tr class="group"><td colspan="6" style="background-color:#f9f6f0">' +
+                                group +
+                                '</td></tr>'
+                            );
+                        last = group;
+                    }
+                });
+            });
         },
-        columnDefs: [
-            {
-                 targets: [0, 1],
-                /*targets: [1],*/
-                visible: false
-            }
-        ],
-   
-
-        //drawCallback: function (settings) {
-        //    var api = this.api();
-        //    var rows = api.rows({ page: 'current' }).nodes();
-        //    var last = null;
-
-
-        //    //SUPUESTAMENTE, DESCOMENTADO ESTE PEDAZO Y REEEMPLAZANDOLO POR EL OTRO FUNCIONA AGRUPAR POR OTRA COLUMNAS.. PERO NO ANDA, ME DA ERROR.
-        //    //ME PARECE QUE FALTA ALGUNA LLAVE O PARENTESIS, PERO NO LOGRO DARME CUENTA DONDE
-
-        //    //segun los comentarios de esto >>> https://datatables.net/examples/advanced_init/row_grouping.html
-
-        //    //api.columns(groupColumn, { page: 'current' }).every(function () {
-        //    //        this.data().each(function (group, i) {
-        //    api.columns(groupColumn, { page: 'current' }).every(function () {
-        //        this.data().each(function (data, i) {
-        //            var group = data ? 'Fichas' : 'Dinero';
-
-        //            if (last !== group) {
-        //                $(rows)
-        //                    .eq(i)
-        //                    .before(
-        //                        '<tr class="group"><td colspan="6" style="background-color:#f9f6f0">' +
-        //                        group +
-        //                        '</td></tr>'
-        //                    );
-        //                last = group;
-        //            }
-        //        });
-        //    });
-        //},
 
         "columns": [
             {

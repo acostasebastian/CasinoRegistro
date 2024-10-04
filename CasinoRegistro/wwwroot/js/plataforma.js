@@ -9,13 +9,26 @@ function cargarDataTable() {
     dataTable = $("#tblPlataformas").DataTable({
         "ajax": {
             "url": "/admin/plataformas/GetAll",
-            "type": "GET",
+            "type": "POST",
             "datatype": "json"
         },
+
+
+        "processing": true,
+        "serverSide": true,
+        "pageLength": 10,
+        "filter": true,
+        "data": null,
+        "responsive": true,
+
         "columns": [
-            { "data": "id", "width": "5%" },
-            { "data": "url", "width": "40%" },
-            { "data": "descripcion", "width": "10%" },
+            //{ "data": "id", "width": "5%" },
+            //{ "data": "url", "width": "40%" },
+            //{ "data": "descripcion", "width": "10%" },
+
+            { "data": "id", "autoWidth": true },
+            { "data": "url", "autoWidth": true },
+            { "data": "descripcion", "autowidth":true },
             {
                 "data": "id",
                 "render": function (data) {
@@ -30,7 +43,9 @@ function cargarDataTable() {
                                
                           </div>
                          `;
-                }, "width": "40%"
+                },
+                /*"width": "40%"*/
+                "autoWidth": true
             }
         ],
         "language": {
@@ -53,7 +68,7 @@ function cargarDataTable() {
                 "previous": "Anterior"
             }
         },
-        responsive: true,
+        
         "width": "100%"
     });
 }

@@ -9,19 +9,24 @@ function cargarDataTable() {
     dataTable = $("#tblCajeros").DataTable({
         "ajax": {
             "url": "/admin/cajeros/GetAll",
-            "type": "GET",
+            /*"type": "GET",*/
+            "type": "POST",
             "datatype": "json"
 
         },
+        "processing": true,
+        "serverSide": true,
+        "pageLength": 10,
+        "filter": true,
+        "data": null,
+        "responsive": true,
 
-
-        "columns": [
-            { "data": "id", "width": "5%" },
-            { "data": "nombre", "width": "15%" },
-            { "data": "apellido", "width": "15%" },
-            { "data": "email", "width": "15%" },
-            { "data": "deudaPesosActual", "width": "10%" },
-
+        "columns": [         
+            { "data": "id", "autoWidth": true },
+            { "data": "nombre", "autoWidth": true },
+            { "data": "apellido", "autoWidth": true },
+            { "data": "email", "autoWidth": true },
+            { "data": "deudaPesosActual", "autoWidth": true },
             {
                 "data": "id",
                 "render": function (data, type, row) {
@@ -50,8 +55,8 @@ function cargarDataTable() {
                                 &nbsp;
                                 ${botonAccion}
                             </div>`;
-                },
-                "width": "40%",
+                },                
+                "autoWidth": true
             }
         ],
         "language": {
@@ -74,7 +79,7 @@ function cargarDataTable() {
                 "previous": "Anterior"
             }
         },
-        responsive:true,
+      
         "width": "100%"
     });
 }
