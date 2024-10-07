@@ -9,13 +9,30 @@ using CasinoRegistro.DataAccess.Data;
 using CasinoRegistro.Models;
 using CasinoRegistro.DataAccess.Data.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
+using CasinoRegistro.Utilities;
+using System.Linq.Expressions;
 
 namespace CasinoRegistro.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "Administrador,Secretaria")]
     public class PlataformasController : Controller
-    {      
+    {
+        #region variables string
+    
+        //datatable - paginacion, ordenamiento y busquda
+
+        public string draw = "";
+        public string start = "";
+        public string length = "";
+        public string sortColum = "";
+        public string sortColumnDir = "";
+        public string searchValue = "";
+        public int pageSize, skip, recordsTotal;
+
+        #endregion
+
+
         private readonly IContenedorTrabajo _contenedorTrabajo;
 
         public PlataformasController(IContenedorTrabajo contenedorTrabajo)
@@ -68,14 +85,14 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                         else
                         {
-                            ModelState.AddModelError(string.Empty,ex.InnerException.Message);
+                            ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.InnerException.Message);
                         }             
                      
                     }
 
                     else
                     {
-                        ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.Message);
+                        ModelState.AddModelError(string.Empty, "Contacte con el administrador e indique el siguiente error >> Error: " + ex.Message);
                     }
 
                 }
@@ -130,14 +147,14 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                         else
                         {
-                            ModelState.AddModelError(string.Empty, ex.InnerException.Message);
+                            ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.InnerException.Message);
                         }
 
                     }
 
                     else
                     {
-                        ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.Message);
+                        ModelState.AddModelError(string.Empty, "Contacte con el administrador e indique el siguiente error >> Error: " + ex.Message);
                     }
                 }
 
@@ -149,14 +166,6 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
         #region Llamadas a la API
 
-        public string draw = "";
-        public string start = "";
-        public string length = "";
-        public string sortColum = "";
-        public string sortColumnDir = "";
-        public string searchValue = "";
-        public int pageSize, skip, recordsTotal;
-
         [HttpPost]
         public IActionResult GetAll()
         {
@@ -165,8 +174,8 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             var draw = Request.Form["draw"].FirstOrDefault();
             var start = Request.Form["start"].FirstOrDefault();
             var length = Request.Form["length"].FirstOrDefault();
-            var sortColum = Request.Form["columns[" + Request.Form["order[0][column]"].FirstOrDefault() + "][name]"].FirstOrDefault();
-            var sortColumnDir = Request.Form["order[0][dir]"].FirstOrDefault();
+            var sortColum = Request.Form["columns[" + Request.Form["order[0][column]"].FirstOrDefault() + "][data]"].FirstOrDefault(); //column por la que esta ordenado
+            var sortColumnDir = Request.Form["order[0][dir]"].FirstOrDefault(); //asc/desc
             var searchValue = Request.Form["search[value]"].FirstOrDefault();
 
             pageSize = length != null ? Convert.ToInt32(length) : 0;
@@ -178,13 +187,26 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
             if (searchValue != "")
             {
-                listaPlataformas = _contenedorTrabajo.Plataforma.GetAll(p => p.URL.Contains(searchValue) || p.Descripcion.Contains(searchValue));
+                listaPlataformas = _contenedorTrabajo.Plataforma.GetAll(p => p.Id.ToString().Contains(searchValue) || p.URL.Contains(searchValue) || p.Descripcion.Contains(searchValue));
 
             }
             else
             {
                 listaPlataformas = _contenedorTrabajo.Plataforma.GetAll();
             };
+
+            // este metodo al que llamo, me devuelve el resultado en una variable,
+            //convierte el nombre de la columna que envia datatable en el formato necesario para el ordenamiento >> x=> x.Id por ejemplo            
+            var getNombreColumnaLambda = _contenedorTrabajo.Plataforma.GetLambda<Plataforma>(sortColum);
+
+            if (sortColumnDir == "desc")
+            {
+                listaPlataformas = listaPlataformas.OrderByDescending(getNombreColumnaLambda);
+            }
+            else
+            {
+                listaPlataformas = listaPlataformas.OrderBy(getNombreColumnaLambda);
+            }
 
 
             recordsTotal = listaPlataformas.Count();
@@ -210,7 +232,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             _contenedorTrabajo.Plataforma.Remove(objFromDb);
             _contenedorTrabajo.Save();
             return Json(new { success = true, message = "Plataforma Borrada Correctamente" });
-        }
+        }  
 
         #endregion
     }

@@ -37,6 +37,10 @@ function cargarDataTable() {
                 {
                     targets: [0, 1],
                     visible: false
+                //targets: [0], visible: false,
+                //targets: [1], visible: false,
+                    //  targets: '_all', visible: true 
+
                 }
             ],
 
@@ -71,10 +75,10 @@ function cargarDataTable() {
 
 
         "columns": [
-            { "data": "cajeroUser.nombreCompleto", "width": "30%" },      
-            { "data": "fechaCreacion", "width": "40%" },
-            //{ "data": "cajeroUser.nombreCompleto", "autowidth": true },
-            //{ "data": "fechaCreacion", "autowidth": true },
+            //{ "data": "cajeroUser.nombreCompleto", "width": "30%" },      
+            //{ "data": "fechaCreacion", "width": "40%" },
+            { "data": "cajeroUser.nombreCompleto", "autowidth": true },
+            { "data": "fechaCreacion", "autowidth": true },
             {
                 "data": "esIngresoFichas",
                 "render": function (data, type, row) {
@@ -93,8 +97,8 @@ function cargarDataTable() {
                     ${tipo}
                 </div>`
                 },
-                "width": "10%"
-               /* "autowidth": true */
+                /*"width": "10%"*/
+                "autowidth": true 
             },        
          
 

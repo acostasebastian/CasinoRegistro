@@ -27,5 +27,8 @@ namespace CasinoRegistro.DataAccess.Data.Repository.IRepository
         void Add(T entity);
         void Remove(int id);
         void Remove(T entity);
+
+
+        public Func<T1, object> GetLambda<T1>(string property);
     }
 }

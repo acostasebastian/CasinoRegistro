@@ -29,13 +29,27 @@ namespace CasinoRegistro.Areas.Admin.Controllers
     //[Authorize(Roles = "Administrador,Secretaria")]
     public class RegistrosMovimientosController : Controller
     {
+
+        #region variables string
+
+        //datatable - paginacion, ordenamiento y busquda
+
+        public string draw = "";
+        public string start = "";
+        public string length = "";
+        public string sortColum = "";
+        public string sortColumnDir = "";
+        public string searchValue = "";
+        public int pageSize, skip, recordsTotal;
+
+        #endregion
+
+
         private readonly IContenedorTrabajo _contenedorTrabajo;
-        private readonly CasinoRegistroDbContext _db;
-        // private readonly CultureInfo _cultura;
+        private readonly CasinoRegistroDbContext _db;        
         private readonly IConfiguration _config;
 
-        public RegistrosMovimientosController(IContenedorTrabajo contenedorTrabajo, CasinoRegistroDbContext db
-            //, CultureInfo cultura
+        public RegistrosMovimientosController(IContenedorTrabajo contenedorTrabajo, CasinoRegistroDbContext db            
             , IConfiguration config
             )
         {
@@ -48,7 +62,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         // GET: Admin/RegistroMovimientoes
         public async Task<IActionResult> Index()
         {
-
+                  
             return View();
         }
 
@@ -207,7 +221,17 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                         catch (Exception ex)
                         {
                             transaction.Rollback();
-                            ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.Message);
+
+                            if (ex.InnerException != null &&
+                                ex.InnerException.Message != null)
+                            {
+                                ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.InnerException.Message);
+                            }
+                            else
+                            {
+                                ModelState.AddModelError(string.Empty, "Contacte con el administrador e indique el siguiente error >> Error: " + ex.Message);
+                            }                                
+                            
                             registroMovimientoVM.ListaCajeros = _contenedorTrabajo.Cajero.GetListaCajeros();
 
                             currentDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
@@ -278,11 +302,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(RegistroMovimientoViewModel registroMovimientoVM)
         {
-            //if (id != registroMovimiento.Id)
-            //{
-            //    return NotFound();
-            //}
-
+          
             if (ModelState.IsValid)
             {
 
@@ -313,18 +333,17 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                     {
                         transaction.Rollback();
 
-
                         if (ex.InnerException != null &&
-                           ex.InnerException.Message != null)
+                            ex.InnerException.Message != null)
                         {
                             ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.InnerException.Message);
                         }
                         else
                         {
-                            ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.Message);
+                            ModelState.AddModelError(string.Empty, "Contacte con el administrador e indique el siguiente error >> Error: " + ex.Message);
                         }
 
-                            
+
                     }
                     registroMovimientoVM.ListaCajeros = _contenedorTrabajo.Cajero.GetListaCajeros();
 
@@ -370,6 +389,22 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
 
         #region Metodos Propios
+
+        public decimal RealizarCalculos2(RegistroMovimiento registroMovimiento, Metodo metodo)
+        {
+            decimal nuevaDeuda = 0;
+            decimal deuda = 0;
+
+            //Busco en la base de datos, la deuda actaul del cajero
+            deuda = (decimal)_contenedorTrabajo.Cajero.Get(registroMovimiento.CajeroId).DeudaPesosActual;
+
+            
+
+                //calculo la nueva deuda
+                nuevaDeuda = (deuda + (decimal)registroMovimiento.PesosEntregados) - (decimal)registroMovimiento.PesosDevueltos;
+
+            return nuevaDeuda;
+        }
 
         public decimal RealizarCalculos(RegistroMovimiento registroMovimiento, Metodo metodo)
         {
@@ -505,15 +540,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
         #endregion
 
-        #region Llamadas a la API
-
-        public string draw = "";
-        public string start = "";
-        public string length = "";
-        public string sortColum = "";
-        public string sortColumnDir = "";
-        public string searchValue = "";
-        public int pageSize, skip, recordsTotal;
+        #region Llamadas a la API   
 
        
         [HttpPost]
@@ -523,8 +550,8 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             var draw = Request.Form["draw"].FirstOrDefault();
             var start = Request.Form["start"].FirstOrDefault();
             var length = Request.Form["length"].FirstOrDefault();
-            var sortColum = Request.Form["columns[" + Request.Form["order[0][column]"].FirstOrDefault() + "][name]"].FirstOrDefault();
-            var sortColumnDir = Request.Form["order[0][dir]"].FirstOrDefault();
+            var sortColum = Request.Form["columns[" + Request.Form["order[0][column]"].FirstOrDefault() + "][data]"].FirstOrDefault(); //column por la que esta ordenado
+            var sortColumnDir = Request.Form["order[0][dir]"].FirstOrDefault(); //asc/desc
             var searchValue = Request.Form["search[value]"].FirstOrDefault();
 
             pageSize = length != null ? Convert.ToInt32(length) : 0;
@@ -543,7 +570,57 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             {
                 listaRegistros = _contenedorTrabajo.RegistroMovimiento.GetAll(includeProperties: "CajeroUser");
             };
-           
+                   
+
+            if (sortColum == "cajeroUser.nombreCompleto")
+            {
+                if (sortColumnDir == "desc")
+                {
+                    listaRegistros = listaRegistros.OrderByDescending(x => x.CajeroUser.NombreCompleto);
+                }
+                else
+                {
+                    listaRegistros = listaRegistros.OrderBy(x => x.CajeroUser.NombreCompleto);
+                }
+            }
+            else
+            {              
+
+                try
+                {
+                    // este metodo al que llamo, me devuelve el resultado en una variable,
+                  //convierte el nombre de la columna que envia datatable en el formato necesario para el ordenamiento >> x=> x.Id por ejemplo    
+                    var getNombreColumnaLambda = _contenedorTrabajo.RegistroMovimiento.GetLambda<RegistroMovimiento>(sortColum);
+
+
+                    if (sortColumnDir == "desc")
+                    {
+                        listaRegistros = listaRegistros.OrderByDescending(getNombreColumnaLambda);
+                    }
+                    else
+                    {
+                        listaRegistros = listaRegistros.OrderBy(getNombreColumnaLambda);
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                    if (ex.InnerException != null &&
+                         ex.InnerException.Message != null)
+                    {                       
+                            ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.InnerException.Message);                       
+
+                    }
+
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Contacte con el administrador e indique el siguiente error >> Error: " + ex.Message);
+                    }
+
+
+                }
+
+            }     
 
             recordsTotal = listaRegistros.Count();
 
@@ -560,8 +637,8 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             var draw = Request.Form["draw"].FirstOrDefault();
             var start = Request.Form["start"].FirstOrDefault();
             var length = Request.Form["length"].FirstOrDefault();
-            var sortColum = Request.Form["columns[" + Request.Form["order[0][column]"].FirstOrDefault() + "][name]"].FirstOrDefault();
-            var sortColumnDir = Request.Form["order[0][dir]"].FirstOrDefault();
+            var sortColum = Request.Form["columns[" + Request.Form["order[0][column]"].FirstOrDefault() + "][data]"].FirstOrDefault(); //column por la que esta ordenado
+            var sortColumnDir = Request.Form["order[0][dir]"].FirstOrDefault(); //asc/desc
             var searchValue = Request.Form["search[value]"].FirstOrDefault();
 
             pageSize = length != null ? Convert.ToInt32(length) : 0;
@@ -585,8 +662,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                                         || r.PesosDevueltos.ToString().Contains(searchValue) || r.Comision.ToString().Contains(searchValue)
                                         && r.CajeroUser.DeudaPesosActual.ToString().Contains(searchValue) || r.FechaCreacion.ToString().Contains(searchValue)
 
-                                   ), 
-                                   
+                                   ),                                    
                                    
                                    includeProperties: "CajeroUser");
 
@@ -597,11 +673,63 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             };
 
 
+            if (sortColum == "cajeroUser.nombreCompleto")
+            {
+                if (sortColumnDir == "desc")
+                {
+                    listaRegistros = listaRegistros.OrderByDescending(x => x.CajeroUser.NombreCompleto);
+                }
+                else
+                {
+                    listaRegistros = listaRegistros.OrderBy(x => x.CajeroUser.NombreCompleto);
+                }
+            }
+            else
+            {
+
+                try
+                {
+                    // este metodo al que llamo, me devuelve el resultado en una variable,
+                    //convierte el nombre de la columna que envia datatable en el formato necesario para el ordenamiento >> x=> x.Id por ejemplo    
+                    var getNombreColumnaLambda = _contenedorTrabajo.RegistroMovimiento.GetLambda<RegistroMovimiento>(sortColum);
+
+
+                    if (sortColumnDir == "desc")
+                    {
+                        listaRegistros = listaRegistros.OrderByDescending(getNombreColumnaLambda);
+                    }
+                    else
+                    {
+                        listaRegistros = listaRegistros.OrderBy(getNombreColumnaLambda);
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                    if (ex.InnerException != null &&
+                         ex.InnerException.Message != null)
+                    {
+                        ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.InnerException.Message);
+
+                    }
+
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Contacte con el administrador e indique el siguiente error >> Error: " + ex.Message);
+                    }
+
+
+                }
+
+            }
+
             recordsTotal = listaRegistros.Count();
 
             listaRegistros = listaRegistros.Skip(skip).Take(pageSize).ToList();
 
-            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = listaRegistros });
+           
+
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = listaRegistros  });
                     
         }
 

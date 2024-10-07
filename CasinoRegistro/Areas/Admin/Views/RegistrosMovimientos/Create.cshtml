@@ -24,7 +24,15 @@
                 </div>
                 <div class="col-8">
 
-                    @Html.DropDownListFor(m => m.CajeroId, Model.ListaCajeros, "-Por favor seleccione un cajero-", new { @class = "form-control" })
+                   @*  @Html.DropDownListFor(m => m.CajeroId, Model.ListaCajeros, "-Por favor seleccione un cajero-", new { @class = "form-control" }) *@
+
+                    <select asp-for="CajeroId" id="dropCajero" class="form-control">
+                        <option value="">Por favor, seleccione un cajero</option>
+                        @foreach (var item in Model.ListaCajeros)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
 
                 </div>
             </div>
@@ -56,7 +64,7 @@
                     </div>
                 </div>    
                 <br />
-                @Html.ActionLink("Calcular deuda registro 2", "CalcularDeuda", new { idCajero = 21, pesosEntregados = 0, pesosDevueltos = 10000, comision = 10000, deudaPesosActual = 0 }, new { @class = "btn btn-warning" })
+               
             }
             else
             {
@@ -95,33 +103,25 @@
                 </div>
                 <br />
 
-             @*    <div class="form-group row">
+                <div class="form-group row">
                     <div class="col-4">
-                        <label asp-for="DeudaPesosActual"></label>
+                        <label asp="Deuda Actual"></label>
                     </div>
                     <div class="col-8">
-                        <input id="deuda" asp-for="DeudaPesosActual" class="form-control" disabled value="0" />
-                        <span asp-validation-for="DeudaPesosActual" class="text-danger"></span>
+                        @*    <input id="deuda" asp-for="DeudaPesosActual" class="form-control" disabled value="0" />
+                       <span asp-validation-for="DeudaPesosActual" class="text-danger"></span> *@
                     </div>
-                </div> *@
+                </div>
                 <br />
 
                 <div class="form-group-row">
+
+                  
                 <div class="col">
-                        @* <a asp-action="CalcularDeuda" asp-controller="RegistrosMovimientosController" class="btn btn-info form-control">Calcular deuda</a> *@
-                       @*  @Html.ActionLink("Calcular deuda 2", "CalcularDeuda", new { pesosEntrega = @Model.pesosEntrega }, new { @class = "btn btn-warning" }) *@
-                        @Html.ActionLink("Calcular deuda registro 3", "CalcularDeuda", new { idCajero = 21, pesosEntregados = 40000, pesosDevueltos = 0, comision = 0, deudaPesosActual = 0 }, new { @class = "btn btn-warning" })
-                        @Html.ActionLink("Calcular deuda registro 5", "CalcularDeuda", new { idCajero = 21, pesosEntregados = 0, pesosDevueltos = 20000, comision = 0, deudaPesosActual = 0 }, new { @class = "btn btn-warning" })
-                        @Html.ActionLink("Calcular deuda registro 7", "CalcularDeuda", new { idCajero = 21, pesosEntregados = 0, pesosDevueltos = 10000, comision = 10000, deudaPesosActual = 0 }, new { @class = "btn btn-warning" })
+                      
 
-
-                      @*   <a onclick=CalcularDeuda("/Admin/RegistrosMovimientos/CalcularDeuda/${data}") class="btn btn-danger text-white" style="cursor:pointer; width:140px;">
-                            <i class="far fa-trash-alt"></i> Calcular
-                        </a> *@
-
-                        @* <div class="col">
-                            <button type="submit" class="btn btn-primary form-control" formaction="/RegistrosMovimientosController/CalcularDeuda"> Calcular</button>
-                        </div> *@
+                        <button asp-asp-controller="RegistrosMovimientos" asp-action="RealizarCalculos2" class = "btn btn-info" }>Calcular Deuda</button>
+                      
                 </div>
                 </div>
                 <br />
@@ -148,13 +148,74 @@
 @section Scripts {
     @{
         <partial name="_ValidationScriptsPartial" />
-        
-    }
-    <script src="~/js/RealizarCalculo.js"></script>
-    
 
+
+        
+    }      
+    <script src="~/js/RealizarCalculo.js"></script>
+
+    <script>
+        $(document).ready(function (){
+
+            $("#dropCajero").change(function(){
+                var CajeroId = $(this).val();
+                console.log("CajeroId: " +CajeroId );
+            });
+        });
+
+    </script>
 
 }
+
+ 
+
+      @*   ///----------------------
+    //         function AccionBloqueo(url) {
+
+    //     $.ajax({
+    //         type: 'RealizarCalculos2',
+    //         url: url,
+    //         success: function (data) {
+    //             if (data.success) {
+    //                 toastr.success(data.message);
+    //                 dataTable.ajax.reload();
+    //             }
+    //             else {
+    //                 toastr.error(data.message);
+    //             }
+    //         }
+    //     });
+
+    //     toastr.options = {
+    //         //primeras opciones
+    //         "closeButton": false, //boton cerrar
+    //         "debug": false,
+    //         "newestOnTop": false, //notificaciones mas nuevas van en la parte superior
+    //         "progressBar": false, //barra de progreso hasta que se oculta la notificacion
+    //         "preventDuplicates": false, //para prevenir mensajes duplicados
+
+    //         "onclick": null,
+
+
+    //         //Posición de la notificación
+    //         //toast-bottom-left, toast-bottom-right, toast-bottom-left, toast-top-full-width, toast-top-center
+    //         "positionClass": "toast-top-center",
+
+    //         "showDuration": "300",
+    //         "hideDuration": "1000",
+    //         "timeOut": "5000",
+    //         "extendedTimeOut": "1000",
+    //         "showEasing": "swing",
+    //         "hideEasing": "linear",
+    //         "showMethod": "fadeIn",
+    //         "hideMethod": "fadeOut",
+    //         "tapToDismiss": false,
+    //     };
+
+    // }
+
+    // }); *@
+
 
 
 

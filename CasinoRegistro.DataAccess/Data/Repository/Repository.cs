@@ -92,71 +92,23 @@ namespace CasinoRegistro.DataAccess.Data.Repository
             return query.FirstOrDefault();
         }
 
+        public Func<T1, object> GetLambda<T1>(string property)
+        {
+                     
+                var param = Expression.Parameter(typeof(T1), "p");
 
-        //public async Task<T> Get(int id)
-        //{
-        //    return await dbSet.FindAsync(id);
-        //}
+                Expression parent = Expression.Property(param, property);
 
-        //public async Task<IEnumerable<T>> GetAll(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, string? includeProperties = null)
-        //{
-        //    // Se crea una consulta IQueryable a partir del DbSet del contexto
-        //    IQueryable<T> query = dbSet;
+                if (!parent.Type.IsValueType)
+                {
+                    return Expression.Lambda<Func<T1, object>>(parent, param).Compile();
+                }
+                var convert = Expression.Convert(parent, typeof(object));
+                return Expression.Lambda<Func<T1, object>>(convert, param).Compile();
+          
+        }
 
-        //    // Se aplica el filtro si se proporciona
-        //    if (filter != null)
-        //    {
-        //        query = query.Where(filter);
-
-        //    }
-
-        //    // Se incluyen propiedades de navegación si se proporcionan
-        //    if (includeProperties != null)
-        //    {
-        //        // Se divide la cadena de propiedades por coma y se itera sobre ellas
-        //        foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-        //        {
-        //            //de esta manera se pueden traer los datos de 2 tablas relacionadas
-        //            query = query.Include(includeProperty);
-        //        }
-        //    }
-
-        //    // Se aplica el ordenamiento si se proporciona
-        //    if (orderBy != null)
-        //    {
-        //        // Se ejecuta la función de ordenamiento y se convierte la consulta en una lista
-        //        return await orderBy(query).ToListAsync();
-        //    }
-
-        //    // Si no se proporciona ordenamiento, simplemente se convierte la consulta en una lista
-        //    return await query.ToListAsync();
-        //}
-
-        //public async Task<T> GetFirstOrDefault(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
-        //{
-        //    // Se crea una consulta IQueryable a partir del DbSet del contexto
-        //    IQueryable<T> query = dbSet;
-
-        //    // Se aplica el filtro si se proporciona
-        //    if (filter != null)
-        //    {
-        //        query = query.Where(filter);
-
-        //    }
-
-        //    // Se incluyen propiedades de navegación si se proporcionan
-        //    if (includeProperties != null)
-        //    {
-        //        // Se divide la cadena de propiedades por coma y se itera sobre ellas
-        //        foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-        //        {
-        //            //de esta manera se pueden traer los datos de 2 tablas relacionadas
-        //            query = query.Include(includeProperty);
-        //        }
-        //    }
-
-        //    return await query.FirstOrDefaultAsync();
-        //}
+       
 
         public void Remove(int id)
         {

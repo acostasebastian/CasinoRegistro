@@ -1,14 +1,13 @@
-﻿var dataTable;
+﻿
+var dataTable;
 
 $(document).ready(function () {
     cargarDataTable();
 });
 
-
 function cargarDataTable() {
-
-
     var groupColumn = 0;
+    var deudaTotal; // Variable para almacenar el valor de deudaPesosActual
 
     dataTable = $("#tblRegistros").DataTable({
         "ajax": {
@@ -25,72 +24,41 @@ function cargarDataTable() {
         "responsive": true,
         displayLength: 25,
 
-        //columnDefs: [{ visible: false, targets: groupColumn }],
-        //order: [[groupColumn, 'asc']],
-
-
         order: [
             [0, 'asc'],
-            [1, 'asc']
+            /*[1, 'asc']*/
         ],
         rowGroup: {
-            dataSrc: ['esIngresoFichas', 'fechaCreacion']
-           /* dataSrc: ['fechaCreacion']*/
+           // dataSrc: ['fechaCreacion', 'esIngresoFichas']
+                        dataSrc: ['fechaCreacion']
         },
         columnDefs: [
             {
-                 targets: [0, 1],
-                /*targets: [1],*/
-                visible: false
+                targets: [0], visible: false,
+                //targets: [0, 1],
+                //visible: false
+               // targets: [1], className: 'dt-right'
             }
         ],
-   
-
-        //drawCallback: function (settings) {
-        //    var api = this.api();
-        //    var rows = api.rows({ page: 'current' }).nodes();
-        //    var last = null;
-
-
-        //    //SUPUESTAMENTE, DESCOMENTADO ESTE PEDAZO Y REEEMPLAZANDOLO POR EL OTRO FUNCIONA AGRUPAR POR OTRA COLUMNAS.. PERO NO ANDA, ME DA ERROR.
-        //    //ME PARECE QUE FALTA ALGUNA LLAVE O PARENTESIS, PERO NO LOGRO DARME CUENTA DONDE
-
-        //    //segun los comentarios de esto >>> https://datatables.net/examples/advanced_init/row_grouping.html
-
-        //    //api.columns(groupColumn, { page: 'current' }).every(function () {
-        //    //        this.data().each(function (group, i) {
-        //    api.columns(groupColumn, { page: 'current' }).every(function () {
-        //        this.data().each(function (data, i) {
-        //            var group = data ? 'Fichas' : 'Dinero';
-
-        //            if (last !== group) {
-        //                $(rows)
-        //                    .eq(i)
-        //                    .before(
-        //                        '<tr class="group"><td colspan="6" style="background-color:#f9f6f0">' +
-        //                        group +
-        //                        '</td></tr>'
-        //                    );
-        //                last = group;
-        //            }
-        //        });
-        //    });
-        //},
 
         "columns": [
+            { "data": "fechaCreacion", "width": "25%" },
             {
+
                 "data": "esIngresoFichas",
                 "render": function (data) {
                     return data ? 'Fichas' : 'Dinero';
                 },
-                "width": "30%"
+                "width": "30%",
+              
+
             },
-            { "data": "fechaCreacion", "width": "25%" },
+            
             { "data": "fichasCargadas", "width": "15%" },
             { "data": "pesosEntregados", "width": "15%" },
             { "data": "pesosDevueltos", "width": "15%" },
             { "data": "comision", "width": "15%" },
-            { "data": "cajeroUser.deudaPesosActual", "width": "35%" }
+            /*{ "data": "cajeroUser.deudaPesosActual", "width": "35%" }*/
         ],
         "language": {
             "decimal": "",
@@ -111,7 +79,15 @@ function cargarDataTable() {
                 "previous": "Anterior"
             }
         },
-        
+
+        "initComplete": function (settings, json) {
+            // Solo se ejecuta una vez que DataTables ha terminado de inicializar
+            if (json.data && json.data.length > 0) {
+                deudaTotal = Math.abs(json.data[0].cajeroUser.deudaPesosActual); // Obtener el valor absoluto
+                document.getElementById("deudaTotal").innerText = deudaTotal; // Actualizar el HTML
+            }
+        },
+
         "width": "100%"
     });
 
@@ -125,5 +101,3 @@ function cargarDataTable() {
         }
     });
 }
-
-
