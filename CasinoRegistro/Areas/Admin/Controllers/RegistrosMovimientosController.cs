@@ -42,20 +42,31 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         public string searchValue = "";
         public int pageSize, skip, recordsTotal;
 
+
+        //logger
+        string informacion = "";
+
+        ClaimsIdentity claimsIdentity;
+        Claim usuarioActual;
+
+        string emailUsuarioActual = "";
+
         #endregion
 
 
         private readonly IContenedorTrabajo _contenedorTrabajo;
         private readonly CasinoRegistroDbContext _db;        
         private readonly IConfiguration _config;
+        private readonly ILogger<Plataforma> _logger;
 
-        public RegistrosMovimientosController(IContenedorTrabajo contenedorTrabajo, CasinoRegistroDbContext db            
-            , IConfiguration config
+        public RegistrosMovimientosController(IContenedorTrabajo contenedorTrabajo, CasinoRegistroDbContext db, 
+            IConfiguration config, ILogger<Plataforma> logger
             )
         {
             _contenedorTrabajo = contenedorTrabajo;
             _db = db;
             _config = config;
+            _logger = logger;
         }
 
         [Authorize(Roles = "Administrador,Secretaria")]
@@ -154,7 +165,16 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             {              
 
                 if (validarDatos(registroMovimientoVM) == false)
-                {                 
+                {
+                    claimsIdentity = (ClaimsIdentity)this.User.Identity;
+                    usuarioActual = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+                    emailUsuarioActual = usuarioActual.Subject.Name;
+
+                    string tipo = registroMovimientoVM.EsIngresoFichas == true ? "Fichas" : "Dinero";
+
+                    informacion = "Usuario: " + emailUsuarioActual + " - Tipo: " + tipo;
+
+                    _logger.LogInformation("CREACIÓN DE REGISTRO \r\n Comienzo del guardado: {Time} - {@informacion}", DateTime.Now, informacion);
 
                     using (var transaction = _db.Database.BeginTransaction())
                     {
@@ -163,14 +183,22 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                         {
                             if (registroMovimientoVM.EsIngresoFichas == false)
                             {
+                                var deudaActual = _contenedorTrabajo.Cajero.Get(registroMovimientoVM.CajeroId).DeudaPesosActual;
                                 var deudaNueva = RealizarCalculos(registroMovimientoVM, Metodo.Creacion);
 
                                 _contenedorTrabajo.Cajero.UpdateDeuda(registroMovimientoVM.CajeroId, deudaNueva);
+
+                                informacion = "Actualización de la deuda en cajero: Deuda actual: "+ deudaActual + " Nueva deuda: " + deudaNueva;
+
+                                _logger.LogInformation("CREACIÓN DE REGISTRO \r\n Cajero.UpdateDeuda: {Time} - {@informacion}", DateTime.Now, informacion);
                             }
 
                             registroMovimientoVM.FechaCreacion = registroMovimientoVM.Fecha;
 
                             _contenedorTrabajo.RegistroMovimiento.Add(registroMovimientoVM);
+                            informacion = "Movimiento agregado.";
+
+                            _logger.LogInformation("CREACIÓN DE REGISTRO \r\n RegistroMovimiento.Add: {Time} - {@informacion}", DateTime.Now, informacion);
 
                             #region envio del correo
 
@@ -201,20 +229,29 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                                 Text = textoCorreo
                             };
 
+                            informacion = "Email: " + registroMovimientoVM.CajeroUser.Email;
+                            _logger.LogInformation("CREACIÓN DE REGISTRO \r\n Creación de texto para mail {Time} - {@informacion}", DateTime.Now, informacion);
+
+                        
+                            #endregion
+
+                            transaction.Commit();
+                            _logger.LogInformation("CREACIÓN DE REGISTRO \r\n Commit Exitoso {Time}", DateTime.Now);
+
+                            //envio del correo después del commit, para que no se mande antes de la creacion del correo
                             using (var cliente = new SmtpClient())
                             {
                                 //cliente.Connect("smtp.gmail.com", 465);
                                 //cliente.Authenticate("seba.acosta85", "agsahvnskuzxrlfu");
-                                
+
                                 cliente.Connect(_config["EmailSettings:SmtpServer"], int.Parse(_config["EmailSettings:SmtpPort"]), false);
                                 cliente.Authenticate(_config["EmailSettings:Username"], _config["EmailSettings:Password"]);
                                 cliente.Send(mensaje);
                                 cliente.Disconnect(true);
 
                             }
-                            #endregion
+                            _logger.LogInformation("CREACIÓN DE REGISTRO \r\n Envio de E-mail {Time}", DateTime.Now);
 
-                            transaction.Commit();
                             _contenedorTrabajo.Save();
                             return RedirectToAction(nameof(Index));
                         }
@@ -226,10 +263,16 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                                 ex.InnerException.Message != null)
                             {
                                 ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.InnerException.Message);
+
+                                informacion = ex.InnerException.Message;
+                                _logger.LogWarning("CREACIÓN DE REGISTRO \r\n Error al querer guardar en Registro de Movimientos - InnerException {Time} - {@informacion}", DateTime.Now, informacion);
                             }
                             else
                             {
                                 ModelState.AddModelError(string.Empty, "Contacte con el administrador e indique el siguiente error >> Error: " + ex.Message);
+
+                                informacion = ex.Message;
+                                _logger.LogWarning("CREACIÓN DE REGISTRO \r\n Error al querer guardar en Registro de Movimientos {Time} - {@informacion}", DateTime.Now, informacion);
                             }                                
                             
                             registroMovimientoVM.ListaCajeros = _contenedorTrabajo.Cajero.GetListaCajeros();
@@ -305,6 +348,15 @@ namespace CasinoRegistro.Areas.Admin.Controllers
           
             if (ModelState.IsValid)
             {
+                claimsIdentity = (ClaimsIdentity)this.User.Identity;
+                usuarioActual = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+                emailUsuarioActual = usuarioActual.Subject.Name;
+
+                string tipo = registroMovimientoVM.EsIngresoFichas == true ? "Fichas" : "Dinero";
+
+                informacion = "Usuario: " + emailUsuarioActual + " - Tipo: " + tipo + " - Id: " + registroMovimientoVM.Id;
+
+                _logger.LogInformation("EDICIÓN DE REGISTRO \r\n Comienzo de la edición: {Time} - {@informacion}", DateTime.Now, informacion);
 
                 using (var transaction = _db.Database.BeginTransaction())
                 {
@@ -315,16 +367,30 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                         if (registroMovimientoVM.EsIngresoFichas == false)
                         {
+                            var deudaActual = _contenedorTrabajo.Cajero.Get(registroMovimientoVM.CajeroId).DeudaPesosActual;
                             var deudaNueva = RealizarCalculos(registroMovimiento, Metodo.Edicion);
 
                             _contenedorTrabajo.Cajero.UpdateDeuda(registroMovimiento.CajeroId, deudaNueva);
+                           
+
+                            informacion = "Actualización de la deuda en cajero: Deuda actual: " + deudaActual + " Nueva deuda: " + deudaNueva;
+
+                            _logger.LogInformation("EDICIÓN DE REGISTRO \r\n Cajero.UpdateDeuda: {Time} - {@informacion}", DateTime.Now, informacion);
+
                         }
 
 
                         _contenedorTrabajo.RegistroMovimiento.Update(registroMovimiento);
+
+                        informacion = "Movimiento editado.";
+
+                        _logger.LogInformation("EDICIÓN DE REGISTRO \r\n RegistroMovimiento.Update: {Time} - {@informacion}", DateTime.Now, informacion);
+
                         _contenedorTrabajo.Save();
 
                         transaction.Commit();
+
+                        _logger.LogInformation("EDICIÓN DE REGISTRO \r\n Commit Exitoso {Time}", DateTime.Now);
 
                         return RedirectToAction(nameof(Index));
 
@@ -337,10 +403,15 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                             ex.InnerException.Message != null)
                         {
                             ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.InnerException.Message);
+
+                            informacion = ex.InnerException.Message;
+                            _logger.LogWarning("EDICIÓN DE REGISTRO \r\n Error al querer editar en Registro de Movimientos - InnerException {Time} - {@informacion}", DateTime.Now, informacion);
                         }
                         else
                         {
                             ModelState.AddModelError(string.Empty, "Contacte con el administrador e indique el siguiente error >> Error: " + ex.Message);
+                            informacion = ex.Message;
+                            _logger.LogWarning("EDICIÓN DE REGISTRO \r\n Error al querer editar en Registro de Movimientos {Time} - {@informacion}", DateTime.Now, informacion);
                         }
 
 
@@ -389,22 +460,6 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
 
         #region Metodos Propios
-
-        public decimal RealizarCalculos2(RegistroMovimiento registroMovimiento, Metodo metodo)
-        {
-            decimal nuevaDeuda = 0;
-            decimal deuda = 0;
-
-            //Busco en la base de datos, la deuda actaul del cajero
-            deuda = (decimal)_contenedorTrabajo.Cajero.Get(registroMovimiento.CajeroId).DeudaPesosActual;
-
-            
-
-                //calculo la nueva deuda
-                nuevaDeuda = (deuda + (decimal)registroMovimiento.PesosEntregados) - (decimal)registroMovimiento.PesosDevueltos;
-
-            return nuevaDeuda;
-        }
 
         public decimal RealizarCalculos(RegistroMovimiento registroMovimiento, Metodo metodo)
         {
@@ -738,8 +793,19 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         public IActionResult Delete(int id)
         {
             var objFromDb = _contenedorTrabajo.RegistroMovimiento.Get(id);
+
+            claimsIdentity = (ClaimsIdentity)this.User.Identity;
+            usuarioActual = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            emailUsuarioActual = usuarioActual.Subject.Name;
+
+
+            _logger.LogInformation("BORRADO DE REGISTRO \r\n Usuario registrado: {Time} - {@emailUsuarioActual}", DateTime.Now, emailUsuarioActual);
+
             if (objFromDb == null)
             {
+                informacion = "Registro no encontrado";
+                _logger.LogWarning("BORRADO DE REGISTRO \r\n Error al querer borrar el registro {Time} - {@informacion}", DateTime.Now, informacion);
+
                 return Json(new { success = false, message = "Error borrando el registro" });
             }
 
@@ -751,9 +817,17 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                     if (objFromDb.EsIngresoFichas == false)
                     {
+                        var deudaActual = _contenedorTrabajo.Cajero.Get(objFromDb.CajeroId).DeudaPesosActual;
                         var deudaNueva = RealizarCalculos(objFromDb, Metodo.Eliminicacion);
 
-                        _contenedorTrabajo.Cajero.UpdateDeuda(objFromDb.CajeroId, deudaNueva);
+                        _contenedorTrabajo.Cajero.UpdateDeuda(objFromDb.CajeroId, deudaNueva);                                            
+                       
+
+                        informacion = "Actualización de la deuda en cajero: Deuda actual: " + deudaActual + " Nueva deuda: " + deudaNueva;
+
+                        _logger.LogInformation("BORRADO DE REGISTRO \r\n Cajero.UpdateDeuda: {Time} - {@informacion}", DateTime.Now, informacion);
+
+
                     }
 
 
@@ -764,6 +838,9 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                 
 
                     transaction.Commit();
+
+                    informacion = "Id: " + objFromDb.Id;
+                    _logger.LogInformation("BORRADO DE REGISTRO \r\n Registro borrado Correctamente {Time} - {@informacion}", DateTime.Now, informacion);
 
                     return Json(new { success = true, message = "Registro borrado Correctamente" });
                 }
@@ -776,10 +853,15 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                        ex.InnerException.Message != null)
                     {
                         ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.InnerException.Message);
+
+                        informacion = ex.InnerException.Message;
+                        _logger.LogWarning("BORRADO DE REGISTRO \r\n Error al querer borrar en Registro de Movimientos - InnerException {Time} - {@informacion}", DateTime.Now, informacion);
                     }
                     else
                     {
                         ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.Message);
+                        informacion = ex.Message;
+                        _logger.LogWarning("BORRADO DE REGISTRO \r\n Error al querer borrar en Registro de Movimientos - InnerException {Time} - {@informacion}", DateTime.Now, informacion);
                     }
 
                     return Json(new { success = false, message = "Error borrando el registro" });

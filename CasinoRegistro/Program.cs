@@ -4,9 +4,9 @@ using CasinoRegistro.DataAccess.Data.Repository.IRepository;
 using CasinoRegistro.DataAccess.Data.Repository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using CasinoRegistro.DataAccess.Data.Initialiser;
-using System.Globalization;
+using Serilog;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,15 +43,20 @@ builder.Services.AddScoped<IInicializadorBD, InicializadorBD>();
 ////agrego para que que tome los datos configurados por defecto en el appsettings.json
 //builder.Configuration.GetSection("Config");
 
-builder.Services.Configure<RequestLocalizationOptions>(options =>
-{
-    var supportedCultures = new[] { "es-AR", "es" };
-    options.SetDefaultCulture(supportedCultures[0])
-        .AddSupportedCultures(supportedCultures)
-        .AddSupportedUICultures(supportedCultures);
-});
+//builder.Services.Configure<RequestLocalizationOptions>(options =>
+//{
+//    var supportedCultures = new[] { "es-AR", "es" };
+//    options.SetDefaultCulture(supportedCultures[0])
+//        .AddSupportedCultures(supportedCultures)
+//        .AddSupportedUICultures(supportedCultures);
+//});
 
+//Injectamos el logger para poder guardar en un archivo el log
 
+Log.Logger = new LoggerConfiguration().WriteTo.File("logs/Logs.txt",rollingInterval: RollingInterval.Day).CreateLogger();
+//borra otros proveedores de loggers si es que los hay
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog();
 
 var app = builder.Build();
 
@@ -66,7 +71,7 @@ else
 }
 app.UseStaticFiles();
 
-app.UseRequestLocalization("es-AR");
+//app.UseRequestLocalization("es-AR");
 //var cultureInfo = new CultureInfo("es-AR");
 //cultureInfo.NumberFormat.NumberDecimalSeparator = ".";
 //cultureInfo.NumberFormat.CurrencyDecimalSeparator = ".";

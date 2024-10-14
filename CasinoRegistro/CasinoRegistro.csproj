@@ -17,6 +17,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.5" />
     <PackageReference Include="NETCore.MailKit" Version="2.1.0" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,5 +28,9 @@
   <ItemGroup>
     <Folder Include="wwwroot\imagenes\cajeros\" />
   </ItemGroup>
+
+<PropertyGroup>
+   <SatelliteResourceLanguages>es</SatelliteResourceLanguages>
+</PropertyGroup>
 
 </Project>

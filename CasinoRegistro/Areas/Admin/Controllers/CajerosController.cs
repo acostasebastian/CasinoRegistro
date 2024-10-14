@@ -27,6 +27,7 @@ using NuGet.Packaging.Signing;
 using System.Data;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Linq.Expressions;
+using Microsoft.VisualBasic;
 namespace CasinoRegistro.Areas.Admin.Controllers
 {
 
@@ -54,6 +55,15 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         public string searchValue = "";
         public int pageSize, skip, recordsTotal;
 
+        //logger
+        string informacion = "";
+
+        ClaimsIdentity claimsIdentity;
+        Claim usuarioActual;
+
+        string emailUsuarioActual = "";
+
+
         #endregion
 
         private readonly IContenedorTrabajo _contenedorTrabajo;
@@ -62,10 +72,11 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         private readonly CasinoRegistroDbContext _db;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _config;
+        private readonly ILogger<Plataforma> _logger;
 
 
         public CajerosController(IContenedorTrabajo contenedorTrabajo, IWebHostEnvironment hostingEnvironment,
-            UserManager<IdentityUser> userManager, CasinoRegistroDbContext db, RoleManager<IdentityRole> roleManager, IConfiguration config)
+            UserManager<IdentityUser> userManager, CasinoRegistroDbContext db, RoleManager<IdentityRole> roleManager, IConfiguration config, ILogger<Plataforma> logger)
         {
             _contenedorTrabajo = contenedorTrabajo;
             _hostingEnvironment = hostingEnvironment;
@@ -73,6 +84,8 @@ namespace CasinoRegistro.Areas.Admin.Controllers
             _db = db;
             _roleManager = roleManager;
             _config = config;
+            _logger = logger;
+      
         }
 
         [Authorize(Roles = "Administrador,Secretaria")]
@@ -165,6 +178,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
             ViewBag.Titulo = "Crear Cajero";
             ViewBag.Encabezado = "Crear un nuevo Cajero";
+
             return View("Create",cajeroViewModel);
         }
 
@@ -199,6 +213,15 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
+                claimsIdentity = (ClaimsIdentity)this.User.Identity;
+                usuarioActual = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+                emailUsuarioActual = usuarioActual.Subject.Name;
+
+                string tipo = cajeroVM.CajeroUserVM.EsCajero == true ? "Cajero" : "Secretaria";
+
+                informacion = "Usuario: " + emailUsuarioActual + " - Tipo: " + tipo;
+                
+                _logger.LogInformation("CREACIÓN DE CAJERO \r\n Usuario registrado para el guardado: {Time} - {@informacion}", DateTime.Now, informacion);
 
                 using (var transaction = _db.Database.BeginTransaction())
                 {
@@ -218,6 +241,10 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                             //guardo la ruta en la base de datos
                             cajeroVM.CajeroUserVM.UrlImagen = @"\imagenes\cajeros\" + nombreArchivo + extension;
+
+
+                            informacion = "URL Imagen: " + cajeroVM.CajeroUserVM.UrlImagen;
+                            _logger.LogInformation("CREACIÓN DE CAJERO \r\n Guardado de imagen {Time} - {@informacion}", DateTime.Now, informacion);
 
                         }
                         #endregion
@@ -247,6 +274,10 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                         //Obtenemos el rol seleccionado
                         string rol = Request.Form["radUsuarioRole"].ToString();
 
+
+                        informacion = "Rol seleccionado: " + rol;
+                        _logger.LogInformation("CREACIÓN DE CAJERO \r\n Creación de rol {Time} - {@informacion}", DateTime.Now, informacion);
+
                         //Validamos si el rol seleccionado es Admin y si lo es lo agregamos
                         if (rol == CNT.Administrador)
                         {
@@ -275,6 +306,9 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                         //Logica para guardar en BD
                         _contenedorTrabajo.Cajero.Add(cajeroVM.CajeroUserVM);
+
+                        informacion = "Agregado a BD. ";
+                        _logger.LogInformation("CREACIÓN DE CAJERO \r\n Cajero.Add {Time} - {@informacion}", DateTime.Now, informacion);
 
 
                         #region Envio del mail
@@ -316,6 +350,8 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                             };
                         }
 
+                        informacion = "Email: " + cajeroVM.CajeroUserVM.Email;
+                        _logger.LogInformation("CREACIÓN DE CAJERO \r\n Creación de texto para mail {Time} - {@informacion}", DateTime.Now, informacion);
 
                         #endregion
 
@@ -331,6 +367,9 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                         //Plesk plesk = new Plesk("https://tudominio.es:8443/enterprise/control/agent.php", "usuario de plesk", "contraseña");
                         //var result = plesk.AddEmail(2, username, password);
                         ////PROBAR ESTO --------------------------------------
+                        ///
+                        //informacion = "Username: " + username;
+                        //_logger.LogInformation("Creación de Email en Plesk {Time} - {@informacion}", DateTime.Now, informacion);
 
                         #endregion
 
@@ -345,6 +384,8 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                             using (var fileStreams = new FileStream(Path.Combine(subidas, nombreArchivo + extension), FileMode.Create))
                             {
                                 archivo[0].CopyTo(fileStreams);
+                                                                
+                                _logger.LogInformation("CREACIÓN DE CAJERO \r\n Guardado de Imagen en carpeta {Time}", DateTime.Now);
                             }
                         }
 
@@ -363,13 +404,17 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                                 _contenedorTrabajo.CajeroPlataforma.Add(cajeroPlataforma);
                                 _contenedorTrabajo.Save();
-                            }         
+
+                                informacion = "Cajero: " + cajeroPlataforma.CajeroUserId + " - " + "Plataforma: " + cajeroPlataforma.PlataformaId;
+                                _logger.LogInformation("CREACIÓN DE CAJERO \r\n Asignación Cajero-Plataforma {Time} - {@informacion}", DateTime.Now, informacion);
+                            }
                         }
 
                         #endregion
 
                         
                         transaction.Commit();
+                        _logger.LogInformation("CREACIÓN DE CAJERO \r\n Commit Exitoso {Time}", DateTime.Now);
 
                         //envio del correo después del commit, para que no se mande antes de la creacion del correo
                         using (var cliente = new SmtpClient())
@@ -380,6 +425,9 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                             cliente.Authenticate(_config["EmailSettings:Username"], _config["EmailSettings:Password"]);
                             cliente.Send(mensaje);
                             cliente.Disconnect(true);
+
+                            
+                            _logger.LogInformation("CREACIÓN DE CAJERO \r\n Envio de E-mail {Time}", DateTime.Now);
 
                         }
 
@@ -405,22 +453,28 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                             if (ex.InnerException.Message.Contains("IX_Cajeros_Email"))
                             {
-                                ModelState.AddModelError(string.Empty, "Ya existe un cajero con el correo ingresado.");
+                                ModelState.AddModelError(string.Empty, "Ya existe un cajero con el correo ingresado.");                            
                             }
 
                             else if (ex.InnerException.Message.Contains("IX_Cajeros_DNI"))
                             {
-                                ModelState.AddModelError(string.Empty, "Ya existe un cajero con el DNI ingresado.");
+                                ModelState.AddModelError(string.Empty, "Ya existe un cajero con el DNI ingresado.");                                
                             }
 
                             else
                             {
-                                ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.InnerException.Message);
+                                ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.InnerException.Message);                              
                             }
+
+                            informacion = ex.InnerException.Message;
+                            _logger.LogWarning("CREACIÓN DE CAJERO \r\n Error al querer guardar en Cajeros - InnerException {Time} - {@informacion}", DateTime.Now, informacion);
                         }
                         else
                         {
                             ModelState.AddModelError(string.Empty, "Contacte con el administrador e indique el siguiente error >> Error: " + ex.Message);
+
+                            informacion = ex.Message;
+                            _logger.LogWarning("CREACIÓN DE CAJERO \r\n Error al querer guardar en Cajeros {Time} - {@informacion}", DateTime.Now, informacion);
                         }
 
                         var archivo = HttpContext.Request.Form.Files;
@@ -541,11 +595,20 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
+                claimsIdentity = (ClaimsIdentity)this.User.Identity;
+                usuarioActual = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+                emailUsuarioActual = usuarioActual.Subject.Name;
+
+                string tipo = cajeroVM.CajeroUserVM.EsCajero == true ? "Cajero" : "Secretaria";
+
+                informacion = "Usuario: " + emailUsuarioActual + " - Tipo: " + tipo + " - Id: " + cajeroVM.CajeroUserVM.Id;
+
+                _logger.LogInformation("EDICIÓN DE CAJERO \r\n Usuario registrado para la edición: {Time} - {@informacion}", DateTime.Now, informacion);
+
                 using (var transaction = _db.Database.BeginTransaction())
                 {
                     try
                     {
-
 
                         #region Imagen
                         string rutaPrincipal = _hostingEnvironment.WebRootPath;
@@ -559,8 +622,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                             //Nuevo imagen para el artículo
                             nombreArchivo = Guid.NewGuid().ToString();
                             subidas = Path.Combine(rutaPrincipal, @"imagenes\cajeros");
-                            extension = Path.GetExtension(archivos[0].FileName);
-                           
+                            extension = Path.GetExtension(archivos[0].FileName);                           
 
 
                             if (cajeroDesdeBd.UrlImagen != null)
@@ -569,16 +631,24 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                                 // la guardo porque sino se pierde en el UPDATE y no vuelve a atras con el rollback
                                 rutaImagenAntigua = Path.Combine(rutaPrincipal, cajeroDesdeBd.UrlImagen.TrimStart('\\'));
 
-                               
+                                informacion = "URL Imagen Antigua: " + rutaImagenAntigua;
+                                _logger.LogInformation("EDICIÓN DE CAJERO \r\n Región imagen {Time} - {@informacion}", DateTime.Now, informacion);
                             }
 
                             cajeroVM.CajeroUserVM.UrlImagen = @"\imagenes\cajeros\" + nombreArchivo + extension;
-                                                       
+
+                            informacion = "URL Imagen Nueva: " + cajeroVM.CajeroUserVM.UrlImagen;
+                            _logger.LogInformation("EDICIÓN DE CAJERO \r\n Región imagen {Time} - {@informacion}", DateTime.Now, informacion);
+
+
                         }
                         else
                         {
                             //Aquí sería cuando la imagen ya existe y se conserva
                             cajeroVM.CajeroUserVM.UrlImagen = cajeroDesdeBd.UrlImagen;
+
+                            informacion = "Se conserva la misma imagen.";
+                            _logger.LogInformation("EDICIÓN DE CAJERO \r\n Región imagen {Time} - {@informacion}", DateTime.Now, informacion);
                         }
                         #endregion
 
@@ -596,14 +666,25 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                                 var setUserNameResult = await _userManager.SetUserNameAsync(user, cajeroVM.CajeroUserVM.Email);
 
 
+                                informacion = "Cambio de Correo: Antiguo: " + cajeroDesdeBd.Email + " Nuevo correo: " + cajeroVM.CajeroUserVM.Email;
+                                _logger.LogInformation("EDICIÓN DE CAJERO \r\n Edición de Usuario en AspNetUser {Time} - {@informacion}", DateTime.Now, informacion);
+
                                 if (setEmailResult.Succeeded && setUserNameResult.Succeeded)
                                 {
                                     await _userManager.UpdateAsync(user);
+
+                                    informacion = "Actualización success";
+                                    _logger.LogInformation("EDICIÓN DE CAJERO \r\n Edición de Usuario en AspNetUser {Time} - {@informacion}", DateTime.Now, informacion);
+
                                 }
                             }
 
                             //Obtenemos el rol seleccionado
                             string rol = Request.Form["radUsuarioRole"].ToString();
+
+                            informacion = "Rol seleccionado: " + rol;
+                            _logger.LogInformation("EDICIÓN DE CAJERO \r\n Edición de rol {Time} - {@informacion}", DateTime.Now, informacion);
+
 
                             //EDITO EL ROL SI CORRESPONDE
                             if (cajeroDesdeBd.Rol != rol)
@@ -637,6 +718,63 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                         _contenedorTrabajo.Cajero.Update(cajeroVM.CajeroUserVM);
 
+                        informacion = "Edición en BD. ";
+                        _logger.LogInformation("EDICIÓN DE CAJERO \r\n Cajero.Update {Time} - {@informacion}", DateTime.Now, informacion);
+
+
+                        #region Envio del mail
+
+                        //Para envio de correo si se cambia
+
+                        var mensaje = new MimeMessage();
+                        if (user != null)
+                        {
+                            if (cajeroDesdeBd.Email != cajeroVM.CajeroUserVM.Email)
+                            {
+
+                                
+                                //mensaje.From.Add(new MailboxAddress("Test Envio mail", "info@gmail.com")); // Test Envio mail: Nombre con el que aparece ademas del correo
+                                mensaje.From.Add(new MailboxAddress(_config["EmailSettings:SenderName"], _config["EmailSettings:SenderEmail"]));
+                                mensaje.To.Add(new MailboxAddress("Test Enviado", cajeroVM.CajeroUserVM.Email));
+
+                                if (cajeroVM.CajeroUserVM.EsCajero)
+                                {
+                                    mensaje.Subject = "Creación de cajero";
+
+                                    mensaje.Body = new TextPart("plain")
+                                    {
+                                        Text = "Bienvenido. Ha sido dado de alta como cajero en el Equipo Juampi.\r\n" +
+                                       "Su correo y credenciales son las siguientes. Se recomienda cambiar la contraseña desde su perfil luego de iniciar sesión. \r\n \r\n" +
+                                       "Correo: " + cajeroVM.CajeroUserVM.Email + "\r\n" +
+                                       "Contraseña: Admin1234."
+
+
+
+                                    };
+                                }
+
+                                else
+                                {
+                                    mensaje.Subject = "Creación de secretaria";
+
+                                    mensaje.Body = new TextPart("plain")
+                                    {
+                                        Text = "Bienvenido. Ha sido dado de alta como secretaria en el Equipo Juampi.\r\n" +
+                                       "Su correo y credenciales son las siguientes. Se recomienda cambiar la contraseña desde su perfil luego de iniciar sesión. \r\n \r\n" +
+                                       "Correo: " + cajeroVM.CajeroUserVM.Email + "\r\n" +
+                                       "Contraseña: Admin1234."
+
+                                    };
+                                }
+
+                                informacion = "Email: " + cajeroVM.CajeroUserVM.Email;
+                                _logger.LogInformation("EDICIÓN DE CAJERO \r\n Creación de texto para mail en edición {Time} - {@informacion}", DateTime.Now, informacion);
+                            }
+                        }
+
+                        #endregion
+
+
 
                         #region tabla Cajero-Plataforma
 
@@ -654,6 +792,9 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                                 _contenedorTrabajo.CajeroPlataforma.Remove(objFromDb);
                                 _contenedorTrabajo.Save();
+
+                               
+                                _logger.LogInformation("EDICIÓN DE CAJERO \r\n Remoción Cajero-Plataforma {Time}", DateTime.Now);
                             }
 
                          
@@ -673,6 +814,10 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                                 _contenedorTrabajo.CajeroPlataforma.Add(cajeroPlataforma);
                                 _contenedorTrabajo.Save();
+
+                                informacion = "Cajero: " + cajeroPlataforma.CajeroUserId + " - " + "Plataforma: " + cajeroPlataforma.PlataformaId;
+                                _logger.LogInformation("EDICIÓN DE CAJERO \r\n Edición Cajero-Plataforma {Time} - {@informacion}", DateTime.Now, informacion);
+
                             }
                         }
 
@@ -680,12 +825,30 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                         _contenedorTrabajo.Save();
 
-                        //elimino la imagen vieja y agrego la nueva cuando se que todo en la transaccion esta bien
-                       
-                        if (rutaImagenAntigua != "")
-                        {
 
-                            //rutaImagen = Path.Combine(rutaPrincipal, cajeroDesdeBd.UrlImagen.TrimStart('\\'));
+                        #region CREACION DE CORREO EN PLESK 
+
+                        ////PROBAR ESTO --------------------------------------
+                        ////USERNAME, PASSWORD Y DOMINIO SE PODRIAN PONER EN CONFIGURACION
+                        ////EL 2 ES EL ID QUE DARAN EN PLESK
+
+                        //string username = Request.Form["username"];
+                        //string password = Request.Form["password"];
+
+                        //Plesk plesk = new Plesk("https://tudominio.es:8443/enterprise/control/agent.php", "usuario de plesk", "contraseña");
+                        //var result = plesk.AddEmail(2, username, password);
+                        ////PROBAR ESTO --------------------------------------
+                        ///
+                        //informacion = "Username: " + username;
+                        //_logger.LogInformation("EDICIÓN DE CAJERO \r\n Creación de Email en Plesk {Time} - {@informacion}", DateTime.Now, informacion);
+
+                        #endregion
+
+
+                        //elimino la imagen vieja y agrego la nueva cuando se que todo en la transaccion esta bien
+
+                        if (rutaImagenAntigua != "")
+                        {                                                      
 
                             if (System.IO.File.Exists(rutaImagenAntigua))
                             {
@@ -699,13 +862,35 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                             using (var fileStreams = new FileStream(Path.Combine(subidas, nombreArchivo + extension), FileMode.Create))
                             {
                                 archivos[0].CopyTo(fileStreams);
+
+                                _logger.LogInformation("EDICIÓN DE CAJERO \r\n Guardado de Imagen en carpeta {Time}", DateTime.Now);
                             }
                         }                      
 
 
                         transaction.Commit();
+                        _logger.LogInformation("EDICIÓN DE CAJERO \r\n Commit Exitoso {Time}", DateTime.Now);
 
-                        return RedirectToAction(nameof(Index));
+                        if (user != null)
+                        {
+                            if (cajeroDesdeBd.Email != cajeroVM.CajeroUserVM.Email)
+
+                                //envio del correo después del commit, para que no se mande antes de la creacion del correo
+                                using (var cliente = new SmtpClient())
+                                {
+                                    //cliente.Connect("smtp.gmail.com", 465);
+                                    //cliente.Authenticate("seba.acosta85", "agsahvnskuzxrlfu");
+                                    cliente.Connect(_config["EmailSettings:SmtpServer"], int.Parse(_config["EmailSettings:SmtpPort"]), false);
+                                    cliente.Authenticate(_config["EmailSettings:Username"], _config["EmailSettings:Password"]);
+                                    cliente.Send(mensaje);
+                                    cliente.Disconnect(true);
+
+
+                                    _logger.LogInformation("EDICIÓN DE CAJERO \r\n Envio de E-mail {Time}", DateTime.Now);
+                                } 
+                        }
+
+                            return RedirectToAction(nameof(Index));
                     }
                     catch (Exception ex)
                     {
@@ -717,24 +902,32 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                             if (ex.InnerException.Message.Contains("IX_Cajeros_Email"))
                             {
-                                ModelState.AddModelError(string.Empty, "Ya existe un cajero con el correo ingresado.");
+                                ModelState.AddModelError(string.Empty, "Ya existe un cajero con el correo ingresado.");                              
+
                             }
 
                             else if (ex.InnerException.Message.Contains("IX_Cajeros_DNI"))
                             {
-                                ModelState.AddModelError(string.Empty, "Ya existe un cajero con el DNI ingresado.");
+                                ModelState.AddModelError(string.Empty, "Ya existe un cajero con el DNI ingresado.");                               
                             }
 
                             else
                             {
                                 ModelState.AddModelError(string.Empty, "Contacte con el administrador >> Error: " + ex.InnerException.Message);
+                                
                             }
+
+                            informacion = ex.InnerException.Message;
+                            _logger.LogWarning("EDICIÓN DE CAJERO \r\n Error al querer editar en Cajeros - InnerException {Time} - {@informacion}", DateTime.Now, informacion);
 
                         }
 
                         else
                         {
                             ModelState.AddModelError(string.Empty, "Contacte con el administrador e indique el siguiente error >> Error: " + ex.Message);
+
+                            informacion = ex.Message;
+                            _logger.LogWarning("EDICIÓN DE CAJERO \r\n Error al querer editar en Cajeros {Time} - {@informacion}", DateTime.Now, informacion);
                         }
 
                         //para no perder los datos de la lista de plataformas
@@ -875,12 +1068,20 @@ namespace CasinoRegistro.Areas.Admin.Controllers
         {
             var cajeroDesdeBd = _contenedorTrabajo.Cajero.Get(id);
 
-            var objFromDb = _userManager.FindByNameAsync(cajeroDesdeBd.Email);                   
-          
+            var objFromDb = _userManager.FindByNameAsync(cajeroDesdeBd.Email);
 
-        
+            claimsIdentity = (ClaimsIdentity)this.User.Identity;
+            usuarioActual = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            emailUsuarioActual = usuarioActual.Subject.Name;
+
+
+            _logger.LogInformation("BLOQUEO DE CAJERO \r\n Usuario registrado: {Time} - {@emailUsuarioActual}", DateTime.Now, emailUsuarioActual);
+
             if (objFromDb == null)
             {
+           
+                _logger.LogWarning("BLOQUEO DE CAJERO \r\n Error al buscar el Cajero a bloquear {Time}", DateTime.Now);
+
                 return Json(new { success = false, message = "Error bloqueando el cajero." });
             }
 
@@ -895,7 +1096,12 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                await _userManager.SetLockoutEndDateAsync(objFromDb.Result, DateTime.Now.AddYears(1000));
                await _userManager.UpdateAsync(objFromDb.Result);
                 _contenedorTrabajo.Save();
-               
+
+
+                informacion = "Cajero Bloqueado Correctamente";
+                _logger.LogWarning("BLOQUEO DE CAJERO \r\n Bloqueo de Cajeros {Time} - {@informacion}", DateTime.Now, informacion);
+
+
                 return Json(new { success = true, message = "Cajero Bloqueado Correctamente" });
             }
 
@@ -907,6 +1113,10 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                 cajeroDesdeBd.Estado = true;
 
                 _contenedorTrabajo.Save();
+
+                informacion = "Cajero DesBloqueado Correctamente";
+                _logger.LogWarning("BLOQUEO DE CAJERO \r\n Bloqueo de Cajeros {Time} - {@informacion}", DateTime.Now, informacion);
+
                 return Json(new { success = true, message = "Cajero DesBloqueado Correctamente" });
             }   
 
