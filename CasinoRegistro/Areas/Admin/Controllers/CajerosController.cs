@@ -44,6 +44,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
         string rutaImagen = "";
         string rutaImagenAntigua = "";
+        string emailAntiguo = "";
 
         //datatable - paginacion, ordenamiento y busquda
 
@@ -329,7 +330,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                                 Text = "Bienvenido. Ha sido dado de alta como cajero en el Equipo Juampi.\r\n" +
                                "Su correo y credenciales son las siguientes. Se recomienda cambiar la contraseña desde su perfil luego de iniciar sesión. \r\n \r\n" +
                                "Correo: " + cajeroVM.CajeroUserVM.Email + "\r\n" +
-                               "Contraseña: Admin1234."
+                               "Contraseña: " + _config["EmailSettings:PasswordProvisoria"]
 
 
 
@@ -345,7 +346,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                                 Text = "Bienvenido. Ha sido dado de alta como secretaria en el Equipo Juampi.\r\n" +
                                "Su correo y credenciales son las siguientes. Se recomienda cambiar la contraseña desde su perfil luego de iniciar sesión. \r\n \r\n" +
                                "Correo: " + cajeroVM.CajeroUserVM.Email + "\r\n" +
-                               "Contraseña: Admin1234."
+                               "Contraseña: " + _config["EmailSettings:PasswordProvisoria"]
 
                             };
                         }
@@ -616,6 +617,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                         var cajeroDesdeBd = _contenedorTrabajo.Cajero.Get(cajeroVM.CajeroUserVM.Id);
 
+                        emailAntiguo = cajeroDesdeBd.Email;
 
                         if (archivos.Count() > 0)
                         {
@@ -659,14 +661,15 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                         //EDITO EL USUARIO EN ASPNETUSER
                         if (user != null)
                         {
-                            if (cajeroDesdeBd.Email != cajeroVM.CajeroUserVM.Email)
+                            if (emailAntiguo != cajeroVM.CajeroUserVM.Email)
                             {
+
                            
                                 var setEmailResult = await _userManager.SetEmailAsync(user, cajeroVM.CajeroUserVM.Email);
                                 var setUserNameResult = await _userManager.SetUserNameAsync(user, cajeroVM.CajeroUserVM.Email);
 
 
-                                informacion = "Cambio de Correo: Antiguo: " + cajeroDesdeBd.Email + " Nuevo correo: " + cajeroVM.CajeroUserVM.Email;
+                                informacion = "Cambio de Correo: Antiguo: " + emailAntiguo + ", Nuevo correo: " + cajeroVM.CajeroUserVM.Email;
                                 _logger.LogInformation("EDICIÓN DE CAJERO \r\n Edición de Usuario en AspNetUser {Time} - {@informacion}", DateTime.Now, informacion);
 
                                 if (setEmailResult.Succeeded && setUserNameResult.Succeeded)
@@ -729,7 +732,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                         var mensaje = new MimeMessage();
                         if (user != null)
                         {
-                            if (cajeroDesdeBd.Email != cajeroVM.CajeroUserVM.Email)
+                            if (emailAntiguo != cajeroVM.CajeroUserVM.Email)
                             {
 
                                 
@@ -746,7 +749,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                                         Text = "Bienvenido. Ha sido dado de alta como cajero en el Equipo Juampi.\r\n" +
                                        "Su correo y credenciales son las siguientes. Se recomienda cambiar la contraseña desde su perfil luego de iniciar sesión. \r\n \r\n" +
                                        "Correo: " + cajeroVM.CajeroUserVM.Email + "\r\n" +
-                                       "Contraseña: Admin1234."
+                                       "Contraseña: "+ _config["EmailSettings:PasswordProvisoria"]
 
 
 
@@ -762,7 +765,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
                                         Text = "Bienvenido. Ha sido dado de alta como secretaria en el Equipo Juampi.\r\n" +
                                        "Su correo y credenciales son las siguientes. Se recomienda cambiar la contraseña desde su perfil luego de iniciar sesión. \r\n \r\n" +
                                        "Correo: " + cajeroVM.CajeroUserVM.Email + "\r\n" +
-                                       "Contraseña: Admin1234."
+                                       "Contraseña: " + _config["EmailSettings:PasswordProvisoria"]
 
                                     };
                                 }
@@ -873,7 +876,7 @@ namespace CasinoRegistro.Areas.Admin.Controllers
 
                         if (user != null)
                         {
-                            if (cajeroDesdeBd.Email != cajeroVM.CajeroUserVM.Email)
+                            if (emailAntiguo != cajeroVM.CajeroUserVM.Email)
 
                                 //envio del correo después del commit, para que no se mande antes de la creacion del correo
                                 using (var cliente = new SmtpClient())
